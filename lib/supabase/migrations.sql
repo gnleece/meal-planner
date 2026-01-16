@@ -1,0 +1,90 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create meals table
+CREATE TABLE IF NOT EXISTS meals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  photo_url TEXT,
+  estimated_cooking_time INTEGER NOT NULL DEFAULT 0,
+  ingredients JSONB NOT NULL DEFAULT '[]'::jsonb,
+  instructions JSONB NOT NULL DEFAULT '[]'::jsonb,
+  source JSONB NOT NULL DEFAULT '{}'::jsonb,
+  tags JSONB DEFAULT '[]'::jsonb,
+  selected_for_week TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create weeks table
+CREATE TABLE IF NOT EXISTS weeks (
+  id TEXT PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  selected_meals JSONB NOT NULL DEFAULT '[]'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS meals_user_id_idx ON meals(user_id);
+CREATE INDEX IF NOT EXISTS meals_selected_for_week_idx ON meals(selected_for_week);
+CREATE INDEX IF NOT EXISTS weeks_user_id_idx ON weeks(user_id);
+
+-- Enable Row Level Security
+ALTER TABLE meals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE weeks ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for meals
+CREATE POLICY "Users can view their own meals"
+  ON meals FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own meals"
+  ON meals FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own meals"
+  ON meals FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own meals"
+  ON meals FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- RLS Policies for weeks
+CREATE POLICY "Users can view their own weeks"
+  ON weeks FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own weeks"
+  ON weeks FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own weeks"
+  ON weeks FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own weeks"
+  ON weeks FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Create function to update updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create triggers
+CREATE TRIGGER update_meals_updated_at BEFORE UPDATE ON meals
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_weeks_updated_at BEFORE UPDATE ON weeks
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
