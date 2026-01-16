@@ -25,6 +25,11 @@ export default function AddMealPage() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: '' }]);
   const [instructions, setInstructions] = useState<string[]>(['']);
 
+  // Image upload state
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   // Import state
   const [url, setUrl] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -83,7 +88,11 @@ export default function AddMealPage() {
       
       // Populate form with imported data
       setName(mealData.name || '');
-      setPhotoUrl(mealData.photoUrl || '');
+      const importedPhotoUrl = mealData.photoUrl || '';
+      setPhotoUrl(importedPhotoUrl);
+      if (importedPhotoUrl) {
+        setImagePreview(importedPhotoUrl);
+      }
       setEstimatedCookingTime(mealData.estimatedCookingTime || 0);
       setIngredients(mealData.ingredients || [{ name: '' }]);
       setInstructions(mealData.instructions || ['']);
@@ -122,6 +131,68 @@ export default function AddMealPage() {
     const updated = [...instructions];
     updated[index] = value;
     setInstructions(updated);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      setUploadError('Image size must be less than 5MB');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload image
+    setIsUploadingImage(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const { url, signedUrl } = await response.json();
+      setPhotoUrl(url); // Store the storage path for database
+      // Update preview with signed URL if available
+      if (signedUrl) {
+        setImagePreview(signedUrl);
+      }
+    } catch (error: any) {
+      setUploadError(error.message);
+      setImagePreview(null);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setPhotoUrl('');
+    setImagePreview(null);
+    setUploadError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -243,15 +314,74 @@ export default function AddMealPage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Photo URL
+                  Meal Photo
                 </label>
-                <input
-                  type="url"
-                  value={photoUrl}
-                  onChange={(e) => setPhotoUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                />
+                
+                {imagePreview || photoUrl ? (
+                  <div className="mb-4">
+                    <div className="relative inline-block">
+                      <img
+                        src={imagePreview || photoUrl}
+                        alt="Meal preview"
+                        className="max-w-full h-48 object-cover rounded-md border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveImage}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                        aria-label="Remove image"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <label
+                      htmlFor="image-upload"
+                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                        isUploadingImage
+                          ? 'border-gray-300 bg-gray-50'
+                          : 'border-gray-300 hover:border-indigo-500 hover:bg-indigo-50'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        {isUploadingImage ? (
+                          <>
+                            <svg className="w-8 h-8 mb-2 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <p className="mb-2 text-sm text-gray-500">Uploading...</p>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p className="mb-2 text-sm text-gray-500">
+                              <span className="font-semibold">Click to upload</span> or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                          </>
+                        )}
+                      </div>
+                      <input
+                        id="image-upload"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={isUploadingImage}
+                      />
+                    </label>
+                  </div>
+                )}
+                
+                {uploadError && (
+                  <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+                )}
               </div>
 
               <div>

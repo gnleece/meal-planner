@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { Meal } from '@/lib/types';
+import { getImageUrl } from '@/lib/supabase/imageUtils';
 
 export async function GET(
   request: NextRequest,
@@ -28,10 +29,12 @@ export async function GET(
       throw error;
     }
 
+    const photoUrl = data.photo_url ? await getImageUrl(data.photo_url) : '';
+
     const meal: Meal = {
       id: data.id,
       name: data.name,
-      photoUrl: data.photo_url || '',
+      photoUrl,
       estimatedCookingTime: data.estimated_cooking_time,
       ingredients: data.ingredients || [],
       instructions: data.instructions || [],
@@ -91,10 +94,12 @@ export async function PUT(
       throw error;
     }
 
+    const photoUrl = data.photo_url ? await getImageUrl(data.photo_url) : '';
+
     const meal: Meal = {
       id: data.id,
       name: data.name,
-      photoUrl: data.photo_url || '',
+      photoUrl,
       estimatedCookingTime: data.estimated_cooking_time,
       ingredients: data.ingredients || [],
       instructions: data.instructions || [],

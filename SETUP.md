@@ -156,7 +156,58 @@ npm list --depth=0
 
 This shows all top-level packages that were installed.
 
-## Step 4: Run SQL Migrations
+## Step 4: Create Supabase Storage Bucket
+
+### What is Supabase Storage?
+
+Supabase Storage is used to store meal images uploaded by users. You need to create a storage bucket before users can upload images.
+
+### How to Create the Bucket
+
+1. **Go to your Supabase project dashboard**
+   - Visit [https://app.supabase.com](https://app.supabase.com)
+   - Select your project
+
+2. **Open Storage**
+   - In the left sidebar, click on **Storage**
+
+3. **Create a new bucket**
+   - Click the **New bucket** button
+   - Name: `meal-images`
+   - **Important**: Leave **Public bucket** UNCHECKED (this keeps images private - only authenticated users can access them)
+   - Click **Create bucket**
+
+4. **Set up bucket policies**
+   - Click on the `meal-images` bucket
+   - Go to the **Policies** tab
+   - Click **New policy**
+   - Choose **For full customization**
+   - Create an **Upload policy**:
+     - Policy name: `Allow authenticated uploads`
+     - Allowed operation: `INSERT`
+     - Target roles: `authenticated`
+     - Policy definition: `auth.role() = 'authenticated'`
+   - Click **Review** then **Save policy**
+   - Create a **Select policy** (for reading):
+     - Click **New policy** again
+     - Policy name: `Allow authenticated reads`
+     - Allowed operation: `SELECT`
+     - Target roles: `authenticated`
+     - Policy definition: `auth.role() = 'authenticated'`
+   - Click **Review** then **Save policy**
+
+### What Gets Created?
+
+- A storage bucket named `meal-images` where all meal photos will be stored
+- Files are organized by user ID (e.g., `user-id/timestamp-random.jpg`)
+
+### Verifying the Bucket
+
+After creating the bucket:
+1. You should see `meal-images` in your Storage buckets list
+2. The bucket should show as "Public" if configured correctly
+
+## Step 5: Run SQL Migrations
 
 ### What are SQL Migrations?
 
@@ -199,7 +250,7 @@ After running the migration, you can verify it worked:
 2. You should see two tables: `meals` and `weeks`
 3. Both tables should have the columns defined in the migration
 
-## Step 5: Start the Development Server
+## Step 6: Start the Development Server
 
 ### What is `npm run dev`?
 
