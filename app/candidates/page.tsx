@@ -15,7 +15,7 @@ export default function CandidatesPage() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const currentWeekId = getWeekId();
-  const [selectedMealIds, setSelectedMealIds] = useState<Set<string>>(new Set());
+  const [selectedWeekId, setSelectedWeekId] = useState(currentWeekId);
 
   // Check authentication
   useEffect(() => {
@@ -41,19 +41,19 @@ export default function CandidatesPage() {
   // Filter to only show candidates
   const candidateMeals = allMeals.filter(meal => meal.isCandidate);
 
-  // Fetch or create current week
-  const { data: currentWeek } = useQuery<Week>({
-    queryKey: ['weeks', currentWeekId],
+  // Fetch or create selected week
+  const { data: selectedWeek } = useQuery<Week>({
+    queryKey: ['weeks', selectedWeekId],
     queryFn: async () => {
-      const response = await fetch(`/api/weeks/${currentWeekId}`);
+      const response = await fetch(`/api/weeks/${selectedWeekId}`);
       if (response.status === 404) {
         // Week doesn't exist, create it
-        const { startDate, endDate } = getWeekDates(currentWeekId);
+        const { startDate, endDate } = getWeekDates(selectedWeekId);
         const createResponse = await fetch('/api/weeks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            id: currentWeekId,
+            id: selectedWeekId,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             selectedMeals: [],
@@ -71,36 +71,70 @@ export default function CandidatesPage() {
     },
   });
 
-  // Update selected meals when week changes
-  useEffect(() => {
-    if (currentWeek) {
-      setSelectedMealIds(new Set(currentWeek.selectedMeals));
-    }
-  }, [currentWeek]);
-
-  // Assign meals to current week mutation
-  const assignToWeekMutation = useMutation({
-    mutationFn: async (mealIds: string[]) => {
-      // Get current week's meals and merge with new ones
-      const existingMealIds = currentWeek?.selectedMeals || [];
-      const allMealIds = Array.from(new Set([...existingMealIds, ...mealIds]));
+  // Toggle meal assignment to selected week mutation
+  const toggleWeekAssignmentMutation = useMutation({
+    mutationFn: async ({ mealId, isAssigned }: { mealId: string; isAssigned: boolean }) => {
+      // Get fresh selected week data from cache to avoid stale data
+      const cachedWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
+      const existingMealIds = cachedWeek?.selectedMeals || [];
       
-      const response = await fetch(`/api/weeks/${currentWeekId}`, {
+      let updatedMealIds: string[];
+      if (isAssigned) {
+        // Remove meal from week
+        updatedMealIds = existingMealIds.filter(id => id !== mealId);
+      } else {
+        // Add meal to week
+        updatedMealIds = Array.from(new Set([...existingMealIds, mealId]));
+      }
+      
+      const response = await fetch(`/api/weeks/${selectedWeekId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          selectedMeals: allMealIds,
+          selectedMeals: updatedMealIds,
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to assign meals to week');
+        throw new Error('Failed to update week assignment');
       }
-      return response.json();
+      const updatedWeek = await response.json();
+      
+      // Update the cache immediately with the response
+      queryClient.setQueryData(['weeks', selectedWeekId], updatedWeek);
+      
+      return updatedWeek;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['weeks', currentWeekId] });
+      // Invalidate queries to ensure all components have fresh data
+      queryClient.invalidateQueries({ queryKey: ['weeks', selectedWeekId] });
       queryClient.invalidateQueries({ queryKey: ['weeks'] });
-      setSelectedMealIds(new Set());
+    },
+  });
+
+  // Clear all meals from selected week mutation
+  const clearWeekMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/weeks/${selectedWeekId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selectedMeals: [],
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to clear week');
+      }
+      const updatedWeek = await response.json();
+      
+      // Update the cache immediately with the response
+      queryClient.setQueryData(['weeks', selectedWeekId], updatedWeek);
+      
+      return updatedWeek;
+    },
+    onSuccess: () => {
+      // Invalidate queries to ensure all components have fresh data
+      queryClient.invalidateQueries({ queryKey: ['weeks', selectedWeekId] });
+      queryClient.invalidateQueries({ queryKey: ['weeks'] });
     },
   });
 
@@ -121,21 +155,21 @@ export default function CandidatesPage() {
   });
 
   const handleSelectMeal = (mealId: string, selected: boolean) => {
-    const newSelected = new Set(selectedMealIds);
-    if (selected) {
-      newSelected.add(mealId);
-    } else {
-      newSelected.delete(mealId);
+    // Check if meal is currently assigned to the selected week
+    const assignedMealIds = new Set(selectedWeek?.selectedMeals || []);
+    const isCurrentlyAssigned = assignedMealIds.has(mealId);
+    
+    // Toggle assignment: if selected is true, we want to assign it (if not already assigned)
+    // if selected is false, we want to remove it (if currently assigned)
+    const shouldBeAssigned = selected;
+    const needsChange = isCurrentlyAssigned !== shouldBeAssigned;
+    
+    if (needsChange) {
+      toggleWeekAssignmentMutation.mutate({ 
+        mealId, 
+        isAssigned: isCurrentlyAssigned 
+      });
     }
-    setSelectedMealIds(newSelected);
-  };
-
-  const handleAssignToWeek = () => {
-    if (selectedMealIds.size === 0) {
-      alert('Please select at least one meal to assign to the week');
-      return;
-    }
-    assignToWeekMutation.mutate(Array.from(selectedMealIds));
   };
 
   const handleRemoveFromCandidates = (mealId: string) => {
@@ -160,37 +194,85 @@ export default function CandidatesPage() {
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Info and Actions */}
+        {/* Week Selector */}
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Select Week
+          </label>
+          <div className="flex gap-2 flex-wrap">
+            {(() => {
+              const weeksToShow = [];
+              const today = new Date();
+              for (let i = 0; i < 4; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i * 7);
+                weeksToShow.push(getWeekId(date));
+              }
+              return weeksToShow.map((weekId) => {
+                const isCurrent = weekId === currentWeekId;
+                return (
+                  <button
+                    key={weekId}
+                    onClick={() => setSelectedWeekId(weekId)}
+                    className={`px-4 py-2 rounded-md border transition-colors ${
+                      selectedWeekId === weekId
+                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                        : 'border-gray-300 hover:border-gray-400'
+                    } ${isCurrent ? 'font-semibold' : ''}`}
+                  >
+                    {formatWeekId(weekId)}
+                    {isCurrent && ' (Current)'}
+                  </button>
+                );
+              });
+            })()}
+          </div>
+        </div>
+
+        {/* Info */}
         <div className="mb-6 space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-            <h2 className="text-lg font-semibold text-blue-900 mb-2">
-              {formatWeekId(currentWeekId)}
-            </h2>
-            <p className="text-sm text-blue-800 mb-4">
-              Select meals from your candidates list to assign them to the current week.
-            </p>
-            {selectedMealIds.size > 0 && (
-              <div className="flex items-center gap-4">
-                <p className="text-sm text-blue-800">
-                  {selectedMealIds.size} meal{selectedMealIds.size !== 1 ? 's' : ''} selected
-                </p>
-                <button
-                  onClick={handleAssignToWeek}
-                  disabled={assignToWeekMutation.isPending}
-                  className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                >
-                  {assignToWeekMutation.isPending
-                    ? 'Assigning...'
-                    : `Assign to Current Week`}
-                </button>
-                <button
-                  onClick={() => setSelectedMealIds(new Set())}
-                  className="text-gray-600 hover:text-gray-800 text-sm"
-                >
-                  Clear Selection
-                </button>
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <h2 className="text-lg font-semibold text-blue-900 mb-2">
+                  {formatWeekId(selectedWeekId)}
+                </h2>
+                {(() => {
+                  const assignedMealIds = selectedWeek?.selectedMeals || [];
+                  const assignedMeals = allMeals.filter(meal => assignedMealIds.includes(meal.id));
+                  
+                  return (
+                    <div>
+                      <p className="text-sm text-blue-800 mb-2">
+                        {assignedMeals.length} meal{assignedMeals.length !== 1 ? 's' : ''} assigned to this week
+                      </p>
+                      {assignedMeals.length > 0 && (
+                        <div className="mt-2">
+                          <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                            {assignedMeals.map((meal) => (
+                              <li key={meal.id}>{meal.name}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
-            )}
+              {selectedWeek && selectedWeek.selectedMeals.length > 0 && (
+                <button
+                  onClick={() => {
+                    if (confirm('Clear all meals from this week?')) {
+                      clearWeekMutation.mutate();
+                    }
+                  }}
+                  disabled={clearWeekMutation.isPending}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 text-sm whitespace-nowrap"
+                >
+                  {clearWeekMutation.isPending ? 'Clearing...' : 'Clear All'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -217,7 +299,7 @@ export default function CandidatesPage() {
             </div>
             <MealGrid
               meals={candidateMeals}
-              selectedMealIds={selectedMealIds}
+              selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
               onSelectMeal={handleSelectMeal}
             />
           </div>
