@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Navigation } from '@/components/Navigation';
 
 export default function WeeksPage() {
   const router = useRouter();
@@ -113,11 +114,6 @@ export default function WeeksPage() {
   const assignedMealIds = currentWeek?.selectedMeals || [];
   const assignedMeals = meals.filter(meal => assignedMealIds.includes(meal.id));
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/auth/login');
-  };
-
   // Get weeks to display (current week and next few)
   const weeksToShow = [];
   const today = new Date();
@@ -129,39 +125,7 @@ export default function WeeksPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-gray-900">Week Planning</h1>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/candidates"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Candidates
-              </Link>
-              <Link
-                href="/meals"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                All Meals
-              </Link>
-              <Link
-                href="/meals/add"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
-              >
-                Add Meal
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Week Selector */}

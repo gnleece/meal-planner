@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { PaprikaImport } from '@/components/PaprikaImport';
 import { PhotoOCRImport } from '@/components/PhotoOCRImport';
 import { parseOCRText } from '@/lib/ocrParser';
+import { Navigation } from '@/components/Navigation';
 
 export default function AddMealPage() {
   const router = useRouter();
@@ -223,31 +224,20 @@ export default function AddMealPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <Link
-              href="/meals"
-              className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to meals
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/weeks"
-                className="text-gray-600 hover:text-gray-900"
-              >
-                Week Planning
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navigation />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <Link
+            href="/meals"
+            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 text-sm"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to meals
+          </Link>
+        </div>
         <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Add Meal</h1>
 
