@@ -20,8 +20,9 @@ export interface Meal {
   tags?: string[];
   createdAt: string;
   updatedAt: string;
-  selectedForWeek?: string; // week identifier (e.g., "2024-W15")
+  selectedForWeek?: string; // week identifier (e.g., "2024-W15") - deprecated, kept for backward compatibility
   userId: string;
+  isCandidate?: boolean; // UI state: whether this meal is in the candidates list
 }
 
 export interface Week {

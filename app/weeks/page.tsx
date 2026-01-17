@@ -7,8 +7,7 @@ import { getWeekId, formatWeekId, getWeekDates } from '@/lib/weekUtils';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { MealGrid } from '@/components/MealGrid';
-import { format } from 'date-fns';
+import Image from 'next/image';
 
 export default function WeeksPage() {
   const router = useRouter();
@@ -16,7 +15,6 @@ export default function WeeksPage() {
   const queryClient = useQueryClient();
   const currentWeekId = getWeekId();
   const [selectedWeekId, setSelectedWeekId] = useState(currentWeekId);
-  const [selectedMealIds, setSelectedMealIds] = useState<Set<string>>(new Set());
 
   // Check authentication
   useEffect(() => {
@@ -81,21 +79,17 @@ export default function WeeksPage() {
     },
   });
 
-  // Update selected meals when week changes
-  useEffect(() => {
-    if (currentWeek) {
-      setSelectedMealIds(new Set(currentWeek.selectedMeals));
-    }
-  }, [currentWeek]);
-
-  // Update week mutation
-  const updateWeekMutation = useMutation({
-    mutationFn: async (mealIds: string[]) => {
+  // Remove meal from week mutation
+  const removeMealFromWeekMutation = useMutation({
+    mutationFn: async (mealId: string) => {
+      const currentMealIds = currentWeek?.selectedMeals || [];
+      const updatedMealIds = currentMealIds.filter(id => id !== mealId);
+      
       const response = await fetch(`/api/weeks/${selectedWeekId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          selectedMeals: mealIds,
+          selectedMeals: updatedMealIds,
         }),
       });
       if (!response.ok) {
@@ -109,18 +103,15 @@ export default function WeeksPage() {
     },
   });
 
-  const handleSelectMeal = async (mealId: string, selected: boolean) => {
-    const newSelected = new Set(selectedMealIds);
-    if (selected) {
-      newSelected.add(mealId);
-    } else {
-      newSelected.delete(mealId);
+  const handleRemoveMeal = (mealId: string) => {
+    if (confirm('Remove this meal from the week?')) {
+      removeMealFromWeekMutation.mutate(mealId);
     }
-    setSelectedMealIds(newSelected);
-    
-    // Update week immediately
-    updateWeekMutation.mutate(Array.from(newSelected));
   };
+
+  // Get meals assigned to the selected week
+  const assignedMealIds = currentWeek?.selectedMeals || [];
+  const assignedMeals = meals.filter(meal => assignedMealIds.includes(meal.id));
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -143,6 +134,12 @@ export default function WeeksPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Week Planning</h1>
             <div className="flex items-center gap-4">
+              <Link
+                href="/candidates"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Candidates
+              </Link>
               <Link
                 href="/meals"
                 className="text-gray-600 hover:text-gray-900"
@@ -193,26 +190,93 @@ export default function WeeksPage() {
           </div>
         </div>
 
-        {/* Selected Meals Summary */}
+        {/* Week Summary */}
         {currentWeek && (
           <div className="mb-6 bg-indigo-50 border border-indigo-200 rounded-md p-4">
             <h2 className="text-lg font-semibold text-indigo-900 mb-2">
               {formatWeekId(selectedWeekId)}
             </h2>
-            <p className="text-sm text-indigo-800">
-              {selectedMealIds.size} meal{selectedMealIds.size !== 1 ? 's' : ''} selected for this week
+            <p className="text-sm text-indigo-800 mb-2">
+              {assignedMeals.length} meal{assignedMeals.length !== 1 ? 's' : ''} assigned to this week
+            </p>
+            <p className="text-xs text-indigo-700">
+              To assign meals to this week, go to the{' '}
+              <Link href="/candidates" className="underline font-medium">
+                Candidates page
+              </Link>
+              .
             </p>
           </div>
         )}
 
-        {/* Meal Grid */}
+        {/* Assigned Meals */}
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Select Meals</h2>
-          <MealGrid
-            meals={meals}
-            selectedMealIds={selectedMealIds}
-            onSelectMeal={handleSelectMeal}
-          />
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Assigned Meals
+          </h2>
+          {assignedMeals.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+              <p className="text-gray-500 text-lg mb-2">No meals assigned to this week yet.</p>
+              <p className="text-gray-500 mb-4">
+                Go to the{' '}
+                <Link href="/candidates" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                  Candidates page
+                </Link>
+                {' '}to assign meals.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {assignedMeals.map((meal) => (
+                <div key={meal.id} className="bg-white rounded-lg shadow-md overflow-hidden relative">
+                  <Link href={`/meals/${meal.id}`} className="block">
+                    <div className="relative w-full h-48 bg-gray-200">
+                      {meal.photoUrl ? (
+                        <Image
+                          src={meal.photoUrl}
+                          alt={meal.name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                          <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2">{meal.name}</h3>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          {meal.estimatedCookingTime > 0 ? `${meal.estimatedCookingTime} min` : 'Time not set'}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemoveMeal(meal.id);
+                    }}
+                    disabled={removeMealFromWeekMutation.isPending}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors disabled:opacity-50 z-10"
+                    aria-label="Remove from week"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </div>

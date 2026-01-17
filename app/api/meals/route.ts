@@ -22,6 +22,16 @@ export async function GET(request: NextRequest) {
       throw error;
     }
 
+    // Fetch candidate meal IDs for this user
+    const { data: candidatesData } = await supabase
+      .from('meal_candidates')
+      .select('meal_id')
+      .eq('user_id', user.id);
+
+    const candidateMealIds = new Set(
+      (candidatesData || []).map((row: any) => row.meal_id)
+    );
+
     // Transform database format to Meal type and convert image URLs
     const meals: Meal[] = await Promise.all(
       data.map(async (row: any) => {
@@ -39,6 +49,7 @@ export async function GET(request: NextRequest) {
           updatedAt: row.updated_at,
           selectedForWeek: row.selected_for_week || undefined,
           userId: row.user_id,
+          isCandidate: candidateMealIds.has(row.id),
         };
       })
     );
@@ -74,7 +85,6 @@ export async function POST(request: NextRequest) {
         instructions: body.instructions,
         source: body.source,
         tags: body.tags || [],
-        selected_for_week: body.selectedForWeek || null,
       })
       .select()
       .single();
@@ -98,6 +108,7 @@ export async function POST(request: NextRequest) {
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,
       userId: data.user_id,
+      isCandidate: false, // New meals are not candidates by default
     };
 
     return NextResponse.json(meal, { status: 201 });

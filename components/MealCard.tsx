@@ -27,6 +27,11 @@ export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) 
             </svg>
           </div>
         )}
+        {meal.isCandidate && !isSelected && (
+          <div className="absolute top-2 left-2 z-10 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
+            Candidate
+          </div>
+        )}
         <div className="relative w-full h-48 bg-gray-200">
           {meal.photoUrl ? (
             <Image

@@ -15,7 +15,6 @@ export default function MealsPage() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTime, setFilterTime] = useState<string>('all');
-  const [selectedMealIds, setSelectedMealIds] = useState<Set<string>>(new Set());
 
   // Check authentication
   useEffect(() => {
@@ -38,6 +37,9 @@ export default function MealsPage() {
     },
   });
 
+  // Count candidates
+  const candidateCount = meals.filter(meal => meal.isCandidate).length;
+
   // Filter meals
   const filteredMeals = meals.filter((meal) => {
     const matchesSearch =
@@ -56,14 +58,34 @@ export default function MealsPage() {
     return matchesSearch && matchesTime;
   });
 
+  // Toggle candidate status mutation
+  const toggleCandidateMutation = useMutation({
+    mutationFn: async ({ mealId, isCandidate }: { mealId: string; isCandidate: boolean }) => {
+      const url = isCandidate 
+        ? `/api/candidates/${mealId}`
+        : `/api/candidates?mealId=${mealId}`;
+      const method = isCandidate ? 'POST' : 'DELETE';
+      
+      const response = await fetch(url, { method });
+      if (!response.ok) {
+        throw new Error('Failed to update candidate status');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    },
+  });
+
   const handleSelectMeal = (mealId: string, selected: boolean) => {
-    const newSelected = new Set(selectedMealIds);
-    if (selected) {
-      newSelected.add(mealId);
-    } else {
-      newSelected.delete(mealId);
-    }
-    setSelectedMealIds(newSelected);
+    const meal = meals.find(m => m.id === mealId);
+    const isCurrentlyCandidate = meal?.isCandidate || false;
+    
+    // Toggle candidate status
+    toggleCandidateMutation.mutate({ 
+      mealId, 
+      isCandidate: !isCurrentlyCandidate 
+    });
   };
 
   const handleSignOut = async () => {
@@ -99,6 +121,12 @@ export default function MealsPage() {
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">Meal Planner</h1>
             <div className="flex items-center gap-4">
+              <Link
+                href="/candidates"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Candidates
+              </Link>
               <Link
                 href="/weeks"
                 className="text-gray-600 hover:text-gray-900"
@@ -146,10 +174,10 @@ export default function MealsPage() {
               <option value="long">Long (&gt;60 min)</option>
             </select>
           </div>
-          {selectedMealIds.size > 0 && (
-            <div className="bg-indigo-50 border border-indigo-200 rounded-md p-3">
-              <p className="text-sm text-indigo-800">
-                {selectedMealIds.size} meal{selectedMealIds.size !== 1 ? 's' : ''} selected
+          {candidateCount > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-md p-3">
+              <p className="text-sm text-green-800">
+                {candidateCount} meal{candidateCount !== 1 ? 's' : ''} in candidates list
               </p>
             </div>
           )}
@@ -158,7 +186,7 @@ export default function MealsPage() {
         {/* Meal Grid */}
         <MealGrid
           meals={filteredMeals}
-          selectedMealIds={selectedMealIds}
+          selectedMealIds={new Set(meals.filter(m => m.isCandidate).map(m => m.id))}
           onSelectMeal={handleSelectMeal}
         />
       </main>

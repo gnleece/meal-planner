@@ -88,3 +88,31 @@ CREATE TRIGGER update_meals_updated_at BEFORE UPDATE ON meals
 
 CREATE TRIGGER update_weeks_updated_at BEFORE UPDATE ON weeks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create meal_candidates table
+CREATE TABLE IF NOT EXISTS meal_candidates (
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  meal_id UUID NOT NULL REFERENCES meals(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (user_id, meal_id)
+);
+
+-- Create indexes for meal_candidates
+CREATE INDEX IF NOT EXISTS meal_candidates_user_id_idx ON meal_candidates(user_id);
+CREATE INDEX IF NOT EXISTS meal_candidates_meal_id_idx ON meal_candidates(meal_id);
+
+-- Enable Row Level Security for meal_candidates
+ALTER TABLE meal_candidates ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for meal_candidates
+CREATE POLICY "Users can view their own meal candidates"
+  ON meal_candidates FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own meal candidates"
+  ON meal_candidates FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own meal candidates"
+  ON meal_candidates FOR DELETE
+  USING (auth.uid() = user_id);

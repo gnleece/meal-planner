@@ -29,6 +29,14 @@ export async function GET(
       throw error;
     }
 
+    // Check if meal is a candidate
+    const { data: candidateData } = await supabase
+      .from('meal_candidates')
+      .select('meal_id')
+      .eq('user_id', user.id)
+      .eq('meal_id', params.id)
+      .single();
+
     const photoUrl = data.photo_url ? await getImageUrl(data.photo_url) : '';
 
     const meal: Meal = {
@@ -44,6 +52,7 @@ export async function GET(
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,
       userId: data.user_id,
+      isCandidate: !!candidateData,
     };
 
     return NextResponse.json(meal);
@@ -77,7 +86,6 @@ export async function PUT(
     if (body.instructions !== undefined) updateData.instructions = body.instructions;
     if (body.source !== undefined) updateData.source = body.source;
     if (body.tags !== undefined) updateData.tags = body.tags;
-    if (body.selectedForWeek !== undefined) updateData.selected_for_week = body.selectedForWeek || null;
 
     const { data, error } = await supabase
       .from('meals')
@@ -109,6 +117,7 @@ export async function PUT(
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,
       userId: data.user_id,
+      isCandidate: false, // Will be updated by client if needed
     };
 
     return NextResponse.json(meal);

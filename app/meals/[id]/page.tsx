@@ -37,6 +37,26 @@ export default function MealDetailPage() {
     },
   });
 
+  // Toggle candidate mutation
+  const toggleCandidateMutation = useMutation({
+    mutationFn: async (isCandidate: boolean) => {
+      const url = isCandidate 
+        ? `/api/candidates/${mealId}`
+        : `/api/candidates?mealId=${mealId}`;
+      const method = isCandidate ? 'POST' : 'DELETE';
+      
+      const response = await fetch(url, { method });
+      if (!response.ok) {
+        throw new Error('Failed to update candidate status');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meals', mealId] });
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    },
+  });
+
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -52,6 +72,11 @@ export default function MealDetailPage() {
       router.push('/meals');
     },
   });
+
+  const handleToggleCandidate = () => {
+    const isCurrentlyCandidate = meal?.isCandidate || false;
+    toggleCandidateMutation.mutate(!isCurrentlyCandidate);
+  };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this meal?')) {
@@ -100,6 +125,12 @@ export default function MealDetailPage() {
             </Link>
             <div className="flex items-center gap-4">
               <Link
+                href="/candidates"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Candidates
+              </Link>
+              <Link
                 href="/weeks"
                 className="text-gray-600 hover:text-gray-900"
               >
@@ -147,7 +178,24 @@ export default function MealDetailPage() {
           <div className="p-6 md:p-8">
             {/* Title and Meta */}
             <div className="mb-6">
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">{meal.name}</h1>
+              <div className="flex items-start justify-between mb-2">
+                <h1 className="text-3xl font-bold text-gray-900">{meal.name}</h1>
+                <button
+                  onClick={handleToggleCandidate}
+                  disabled={toggleCandidateMutation.isPending}
+                  className={`px-4 py-2 rounded-md font-medium transition-colors ${
+                    meal.isCandidate
+                      ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  } disabled:opacity-50`}
+                >
+                  {toggleCandidateMutation.isPending
+                    ? 'Updating...'
+                    : meal.isCandidate
+                    ? 'Remove from Candidates'
+                    : 'Add to Candidates'}
+                </button>
+              </div>
               <div className="flex items-center gap-4 text-sm text-gray-600">
                 <span className="flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,6 +203,14 @@ export default function MealDetailPage() {
                   </svg>
                   {meal.estimatedCookingTime > 0 ? `${meal.estimatedCookingTime} minutes` : 'Time not set'}
                 </span>
+                {meal.isCandidate && (
+                  <span className="flex items-center gap-1 text-green-600 font-medium">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Candidate
+                  </span>
+                )}
                 {meal.source.url && (
                   <a
                     href={meal.source.url}
