@@ -38,8 +38,9 @@ export default function MealsPage() {
     },
   });
 
-  // Count candidates
-  const candidateCount = meals.filter(meal => meal.isCandidate).length;
+  // Get candidate meals
+  const candidateMeals = meals.filter(meal => meal.isCandidate);
+  const candidateCount = candidateMeals.length;
 
   // Filter meals
   const filteredMeals = meals.filter((meal) => {
@@ -70,6 +71,38 @@ export default function MealsPage() {
       const response = await fetch(url, { method });
       if (!response.ok) {
         throw new Error('Failed to update candidate status');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    },
+  });
+
+  // Remove from candidates mutation
+  const removeCandidateMutation = useMutation({
+    mutationFn: async (mealId: string) => {
+      const response = await fetch(`/api/candidates?mealId=${mealId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to remove candidate');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    },
+  });
+
+  // Clear all candidates mutation
+  const clearAllCandidatesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch('/api/candidates?mealId=all', {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to clear all candidates');
       }
       return response.json();
     },
@@ -115,6 +148,63 @@ export default function MealsPage() {
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Current Candidates Section */}
+        {candidateCount > 0 && (
+          <div className="mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h2 className="text-lg font-semibold text-blue-900 mb-2">
+                    Current Candidates
+                  </h2>
+                  <p className="text-sm text-blue-800 mb-2">
+                    {candidateCount} meal{candidateCount !== 1 ? 's' : ''} in candidates list
+                  </p>
+                  {candidateMeals.length > 0 && (
+                    <div className="mt-2">
+                      <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                        {candidateMeals.map((meal) => (
+                          <li key={meal.id}>
+                            <Link
+                              href={`/meals/${meal.id}`}
+                              className="hover:text-blue-900 hover:underline"
+                            >
+                              {meal.name}
+                            </Link>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Remove "${meal.name}" from candidates?`)) {
+                                  removeCandidateMutation.mutate(meal.id);
+                                }
+                              }}
+                              disabled={removeCandidateMutation.isPending}
+                              className="ml-2 text-red-600 hover:text-red-800 text-xs"
+                              title="Remove from candidates"
+                            >
+                              ×
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    if (confirm(`Are you sure you want to clear all ${candidateCount} candidate${candidateCount !== 1 ? 's' : ''}?`)) {
+                      clearAllCandidatesMutation.mutate();
+                    }
+                  }}
+                  disabled={clearAllCandidatesMutation.isPending}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 text-sm whitespace-nowrap"
+                >
+                  {clearAllCandidatesMutation.isPending ? 'Clearing...' : 'Clear All'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Search and Filters */}
         <div className="mb-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
@@ -138,13 +228,6 @@ export default function MealsPage() {
               <option value="long">Long (&gt;60 min)</option>
             </select>
           </div>
-          {candidateCount > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-3">
-              <p className="text-sm text-green-800">
-                {candidateCount} meal{candidateCount !== 1 ? 's' : ''} in candidates list
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Meal Grid */}

@@ -94,10 +94,21 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const mealId = searchParams.get('mealId');
 
-    if (!mealId) {
-      return NextResponse.json({ error: 'mealId is required' }, { status: 400 });
+    // If mealId is "all" or not provided, clear all candidates for the user
+    if (!mealId || mealId === 'all') {
+      const { error } = await supabase
+        .from('meal_candidates')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
+
+      return NextResponse.json({ success: true, cleared: 'all' });
     }
 
+    // Otherwise, delete a specific candidate
     const { error } = await supabase
       .from('meal_candidates')
       .delete()
