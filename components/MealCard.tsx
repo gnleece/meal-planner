@@ -19,7 +19,11 @@ export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) 
 
   return (
     <Link href={`/meals/${meal.id}`} className="block">
-      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow relative">
+      <div className={`rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all relative ${
+        isSelected 
+          ? 'bg-indigo-50 border-2 border-indigo-500' 
+          : 'bg-white border-2 border-transparent'
+      }`}>
         {isSelected && (
           <div className="absolute top-2 right-2 z-10 bg-indigo-600 text-white rounded-full p-1">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -50,7 +54,7 @@ export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) 
           )}
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-lg mb-2 line-clamp-2">{meal.name}</h3>
+          <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">{meal.name}</h3>
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600 flex items-center gap-1">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

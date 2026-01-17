@@ -279,7 +279,7 @@ export default function AddMealPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/recipe"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                 />
                 <button
                   type="button"
@@ -308,7 +308,7 @@ export default function AddMealPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                 />
               </div>
 
@@ -393,7 +393,7 @@ export default function AddMealPage() {
                   value={estimatedCookingTime || ''}
                   onChange={(e) => setEstimatedCookingTime(parseInt(e.target.value) || 0)}
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                 />
               </div>
 
@@ -418,7 +418,7 @@ export default function AddMealPage() {
                         value={ingredient.name}
                         onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                         placeholder="Ingredient name"
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                       />
                       {ingredients.length > 1 && (
                         <button
@@ -459,7 +459,7 @@ export default function AddMealPage() {
                           onChange={(e) => handleInstructionChange(index, e.target.value)}
                           placeholder="Instruction step"
                           rows={2}
-                          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                         />
                         {instructions.length > 1 && (
                           <button

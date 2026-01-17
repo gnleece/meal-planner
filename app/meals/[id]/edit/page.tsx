@@ -249,7 +249,7 @@ export default function EditMealPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
@@ -334,7 +334,7 @@ export default function EditMealPage() {
                 value={estimatedCookingTime || ''}
                 onChange={(e) => setEstimatedCookingTime(parseInt(e.target.value) || 0)}
                 min="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
             </div>
 
@@ -359,21 +359,21 @@ export default function EditMealPage() {
                       value={ingredient.amount || ''}
                       onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
                       placeholder="Amount"
-                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                     />
                     <input
                       type="text"
                       value={ingredient.unit || ''}
                       onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
                       placeholder="Unit"
-                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                     />
                     <input
                       type="text"
                       value={ingredient.name}
                       onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                       placeholder="Ingredient name"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                     />
                     {ingredients.length > 1 && (
                       <button
@@ -414,7 +414,7 @@ export default function EditMealPage() {
                         onChange={(e) => handleInstructionChange(index, e.target.value)}
                         placeholder="Instruction step"
                         rows={2}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
                       />
                       {instructions.length > 1 && (
                         <button
