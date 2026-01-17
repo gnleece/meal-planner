@@ -100,6 +100,12 @@ export default function MealsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Meal Planner</h1>
             <div className="flex items-center gap-4">
               <Link
+                href="/weeks"
+                className="text-gray-600 hover:text-gray-900"
+              >
+                Week Planning
+              </Link>
+              <Link
                 href="/meals/add"
                 className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors"
               >
