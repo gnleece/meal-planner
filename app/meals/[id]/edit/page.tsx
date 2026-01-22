@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { Meal, Ingredient } from '@/lib/types';
+import { Meal, Ingredient, Category } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { Navigation } from '@/components/Navigation';
 
@@ -22,6 +22,7 @@ export default function EditMealPage() {
   const [estimatedCookingTime, setEstimatedCookingTime] = useState(0);
   const [ingredients, setIngredients] = useState<Ingredient[]>([{ name: '' }]);
   const [instructions, setInstructions] = useState<string[]>(['']);
+  const [category, setCategory] = useState('');
 
   // Image upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -49,6 +50,18 @@ export default function EditMealPage() {
     },
   });
 
+  // Fetch categories
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      return response.json();
+    },
+  });
+
   // Populate form when meal data is loaded
   useEffect(() => {
     if (meal) {
@@ -60,6 +73,7 @@ export default function EditMealPage() {
       setEstimatedCookingTime(meal.estimatedCookingTime || 0);
       setIngredients(meal.ingredients && meal.ingredients.length > 0 ? meal.ingredients : [{ name: '' }]);
       setInstructions(meal.instructions && meal.instructions.length > 0 ? meal.instructions : ['']);
+      setCategory(meal.category || '');
     }
   }, [meal]);
 
@@ -191,6 +205,7 @@ export default function EditMealPage() {
       instructions: instructions.filter((inst) => inst.trim()),
       source: meal?.source || { type: 'manual' },
       tags: meal?.tags || [],
+      category: category.trim() || undefined,
     };
 
     updateMealMutation.mutate(mealData);
@@ -336,6 +351,24 @@ export default function EditMealPage() {
                 min="0"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+              >
+                <option value="">No category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.name}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>

@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS meals (
   instructions JSONB NOT NULL DEFAULT '[]'::jsonb,
   source JSONB NOT NULL DEFAULT '{}'::jsonb,
   tags JSONB DEFAULT '[]'::jsonb,
+  category TEXT,
   selected_for_week TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -115,4 +116,37 @@ CREATE POLICY "Users can insert their own meal candidates"
 
 CREATE POLICY "Users can delete their own meal candidates"
   ON meal_candidates FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Create categories table
+CREATE TABLE IF NOT EXISTS categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, name)  -- Prevent duplicate category names per user
+);
+
+-- Create index for categories
+CREATE INDEX IF NOT EXISTS categories_user_id_idx ON categories(user_id);
+
+-- Enable Row Level Security for categories
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for categories
+CREATE POLICY "Users can view their own categories"
+  ON categories FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own categories"
+  ON categories FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own categories"
+  ON categories FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own categories"
+  ON categories FOR DELETE
   USING (auth.uid() = user_id);

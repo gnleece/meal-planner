@@ -48,6 +48,7 @@ export async function GET(
       instructions: data.instructions || [],
       source: data.source || { type: 'manual' },
       tags: data.tags || [],
+      category: data.category || undefined,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,
@@ -86,6 +87,7 @@ export async function PUT(
     if (body.instructions !== undefined) updateData.instructions = body.instructions;
     if (body.source !== undefined) updateData.source = body.source;
     if (body.tags !== undefined) updateData.tags = body.tags;
+    if (body.category !== undefined) updateData.category = body.category || null;
 
     const { data, error } = await supabase
       .from('meals')
@@ -113,6 +115,7 @@ export async function PUT(
       instructions: data.instructions || [],
       source: data.source || { type: 'manual' },
       tags: data.tags || [],
+      category: data.category || undefined,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,

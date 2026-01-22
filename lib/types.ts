@@ -18,6 +18,7 @@ export interface Meal {
     originalData?: any;
   };
   tags?: string[];
+  category?: string;
   createdAt: string;
   updatedAt: string;
   selectedForWeek?: string; // week identifier (e.g., "2024-W15") - deprecated, kept for backward compatibility
@@ -31,4 +32,11 @@ export interface Week {
   endDate: string;
   selectedMeals: string[]; // meal IDs
   userId: string;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  userId: string;
+  createdAt: string;
 }

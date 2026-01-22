@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
           instructions: row.instructions || [],
           source: row.source || { type: 'manual' },
           tags: row.tags || [],
+          category: row.category || undefined,
           createdAt: row.created_at,
           updatedAt: row.updated_at,
           selectedForWeek: row.selected_for_week || undefined,
@@ -85,6 +86,7 @@ export async function POST(request: NextRequest) {
         instructions: body.instructions,
         source: body.source,
         tags: body.tags || [],
+        category: body.category || null,
       })
       .select()
       .single();
@@ -104,6 +106,7 @@ export async function POST(request: NextRequest) {
       instructions: data.instructions || [],
       source: data.source || { type: 'manual' },
       tags: data.tags || [],
+      category: data.category || undefined,
       createdAt: data.created_at,
       updatedAt: data.updated_at,
       selectedForWeek: data.selected_for_week || undefined,

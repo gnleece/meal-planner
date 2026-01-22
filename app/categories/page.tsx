@@ -1,0 +1,163 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Category } from '@/lib/types';
+import { createClient } from '@/lib/supabase/client';
+import { Navigation } from '@/components/Navigation';
+
+export default function CategoriesPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  // Check authentication
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.push('/auth/login');
+      }
+    });
+  }, [router, supabase]);
+
+  // Fetch categories
+  const { data: categories = [], isLoading } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      return response.json();
+    },
+  });
+
+  // Create category mutation
+  const createMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const response = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to create category');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      setNewCategoryName('');
+      setError(null);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
+  // Delete category mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete category');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newCategoryName.trim()) {
+      createMutation.mutate(newCategoryName.trim());
+    }
+  };
+
+  const handleDelete = (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete "${name}"? This will remove the category from all meals that use it.`)) {
+      deleteMutation.mutate(id);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Navigation />
+
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">Manage Categories</h1>
+
+          {/* Add new category form */}
+          <form onSubmit={handleSubmit} className="mb-8">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Add New Category
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                placeholder="e.g., Breakfast, Dinner, Dessert"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+              />
+              <button
+                type="submit"
+                disabled={createMutation.isPending || !newCategoryName.trim()}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {createMutation.isPending ? 'Adding...' : 'Add'}
+              </button>
+            </div>
+            {error && (
+              <p className="mt-2 text-sm text-red-600">{error}</p>
+            )}
+          </form>
+
+          {/* Categories list */}
+          <div>
+            <h2 className="text-lg font-medium text-gray-900 mb-4">Your Categories</h2>
+
+            {isLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <p className="mt-2 text-gray-600">Loading categories...</p>
+              </div>
+            ) : categories.length === 0 ? (
+              <p className="text-gray-500 text-center py-8">
+                No categories yet. Add your first category above.
+              </p>
+            ) : (
+              <ul className="divide-y divide-gray-200">
+                {categories.map((category) => (
+                  <li key={category.id} className="py-3 flex items-center justify-between">
+                    <span className="text-gray-900">{category.name}</span>
+                    <button
+                      onClick={() => handleDelete(category.id, category.name)}
+                      disabled={deleteMutation.isPending}
+                      className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

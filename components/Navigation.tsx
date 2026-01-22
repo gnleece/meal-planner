@@ -70,6 +70,16 @@ export function Navigation() {
               >
                 Week Planning
               </Link>
+              <Link
+                href="/categories"
+                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  isActive('/categories')
+                    ? 'bg-indigo-100 text-indigo-700'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
+              >
+                Categories
+              </Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
