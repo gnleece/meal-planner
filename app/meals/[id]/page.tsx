@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
-import { Meal } from '@/lib/types';
+import { Meal, Category, getCategoryColorClasses } from '@/lib/types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -37,6 +37,22 @@ export default function MealDetailPage() {
       return response.json();
     },
   });
+
+  // Fetch categories for color display
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
+      }
+      return response.json();
+    },
+  });
+
+  // Get category color
+  const category = categories.find(c => c.name === meal?.category);
+  const categoryColor = category ? getCategoryColorClasses(category.color) : getCategoryColorClasses('gray');
 
   // Toggle candidate mutation
   const toggleCandidateMutation = useMutation({
@@ -183,6 +199,11 @@ export default function MealDetailPage() {
                 </button>
               </div>
               <div className="flex items-center gap-4 text-sm text-gray-600">
+                {meal.category && (
+                  <span className={`px-2.5 py-1 rounded text-sm font-medium ${categoryColor.bg} ${categoryColor.text}`}>
+                    {meal.category}
+                  </span>
+                )}
                 <span className="flex items-center gap-1">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

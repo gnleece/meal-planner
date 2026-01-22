@@ -314,6 +314,7 @@ export default function CandidatesPage() {
               selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
               onSelectMeal={handleSelectMeal}
               categories={categories}
+              hideCandidateBadge
             />
           </div>
         )}

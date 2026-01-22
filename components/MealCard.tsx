@@ -9,9 +9,10 @@ interface MealCardProps {
   isSelected?: boolean;
   onSelect?: (mealId: string, selected: boolean) => void;
   categories?: Category[];
+  hideCandidateBadge?: boolean;
 }
 
-export function MealCard({ meal, isSelected = false, onSelect, categories = [] }: MealCardProps) {
+export function MealCard({ meal, isSelected = false, onSelect, categories = [], hideCandidateBadge = false }: MealCardProps) {
   const category = categories.find(c => c.name === meal.category);
   const categoryColor = category ? getCategoryColorClasses(category.color) : getCategoryColorClasses('gray');
   const handleCardClick = () => {
@@ -65,7 +66,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [] }
       )}
       
       {/* Candidate badge */}
-      {meal.isCandidate && !isSelected && (
+      {meal.isCandidate && !isSelected && !hideCandidateBadge && (
         <div className="absolute top-2 left-2 z-10 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded">
           Candidate
         </div>
