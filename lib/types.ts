@@ -40,6 +40,7 @@ export interface Category {
   color: string;
   userId: string;
   createdAt: string;
+  displayOrder: number;
 }
 
 // Preset colors for categories that fit the app's color palette

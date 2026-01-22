@@ -2,9 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import { Meal, Week, Category } from '@/lib/types';
+import { Meal, Week, Category, getCategoryColorClasses } from '@/lib/types';
 import { MealGrid } from '@/components/MealGrid';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getWeekId, formatWeekId, getWeekDates } from '@/lib/weekUtils';
@@ -52,6 +52,43 @@ export default function CandidatesPage() {
 
   // Filter to only show candidates
   const candidateMeals = allMeals.filter(meal => meal.isCandidate);
+
+  // Group candidates by category, ordered by category displayOrder
+  const groupedCandidates = useMemo(() => {
+    // Create a map of category name to displayOrder
+    const categoryOrderMap = new Map<string, number>();
+    categories.forEach(cat => {
+      categoryOrderMap.set(cat.name, cat.displayOrder);
+    });
+
+    // Group meals by category
+    const groups = new Map<string, Meal[]>();
+    const uncategorized: Meal[] = [];
+
+    candidateMeals.forEach(meal => {
+      if (meal.category) {
+        const existing = groups.get(meal.category) || [];
+        existing.push(meal);
+        groups.set(meal.category, existing);
+      } else {
+        uncategorized.push(meal);
+      }
+    });
+
+    // Sort groups by category displayOrder
+    const sortedGroups = Array.from(groups.entries()).sort((a, b) => {
+      const orderA = categoryOrderMap.get(a[0]) ?? Number.MAX_SAFE_INTEGER;
+      const orderB = categoryOrderMap.get(b[0]) ?? Number.MAX_SAFE_INTEGER;
+      return orderA - orderB;
+    });
+
+    // Add uncategorized at the end if there are any
+    if (uncategorized.length > 0) {
+      sortedGroups.push(['Uncategorized', uncategorized]);
+    }
+
+    return sortedGroups;
+  }, [candidateMeals, categories]);
 
   // Fetch or create selected week
   const { data: selectedWeek } = useQuery<Week>({
@@ -309,13 +346,34 @@ export default function CandidatesPage() {
                 {candidateMeals.length} Candidate{candidateMeals.length !== 1 ? 's' : ''}
               </h2>
             </div>
-            <MealGrid
-              meals={candidateMeals}
-              selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
-              onSelectMeal={handleSelectMeal}
-              categories={categories}
-              hideCandidateBadge
-            />
+            <div className="space-y-8">
+              {groupedCandidates.map(([categoryName, meals]) => {
+                const category = categories.find(c => c.name === categoryName);
+                const colorClasses = category
+                  ? getCategoryColorClasses(category.color)
+                  : getCategoryColorClasses('gray');
+
+                return (
+                  <div key={categoryName}>
+                    <div className="flex items-center gap-2 mb-4">
+                      <h3 className={`px-3 py-1 rounded-md text-sm font-semibold ${colorClasses.bg} ${colorClasses.text}`}>
+                        {categoryName}
+                      </h3>
+                      <span className="text-sm text-gray-500">
+                        ({meals.length} meal{meals.length !== 1 ? 's' : ''})
+                      </span>
+                    </div>
+                    <MealGrid
+                      meals={meals}
+                      selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
+                      onSelectMeal={handleSelectMeal}
+                      categories={categories}
+                      hideCandidateBadge
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>

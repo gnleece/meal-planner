@@ -111,6 +111,42 @@ export default function CategoriesPage() {
     },
   });
 
+  // Reorder categories mutation
+  const reorderMutation = useMutation({
+    mutationFn: async (categoryIds: string[]) => {
+      const response = await fetch('/api/categories/reorder', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ categoryIds }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to reorder categories');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
+  const handleMoveUp = (index: number) => {
+    if (index === 0) return;
+    const newOrder = [...categories];
+    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    reorderMutation.mutate(newOrder.map(c => c.id));
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index === categories.length - 1) return;
+    const newOrder = [...categories];
+    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    reorderMutation.mutate(newOrder.map(c => c.id));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newCategoryName.trim()) {
@@ -209,7 +245,7 @@ export default function CategoriesPage() {
               </p>
             ) : (
               <ul className="divide-y divide-gray-200">
-                {categories.map((category) => {
+                {categories.map((category, index) => {
                   const colorClasses = getCategoryColorClasses(category.color);
                   return (
                     <li key={category.id} className="py-4">
@@ -262,6 +298,28 @@ export default function CategoriesPage() {
                       ) : (
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
+                            <div className="flex flex-col gap-0.5">
+                              <button
+                                onClick={() => handleMoveUp(index)}
+                                disabled={index === 0 || reorderMutation.isPending}
+                                className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-0.5"
+                                title="Move up"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleMoveDown(index)}
+                                disabled={index === categories.length - 1 || reorderMutation.isPending}
+                                className="text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed p-0.5"
+                                title="Move down"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                              </button>
+                            </div>
                             <span className={`px-2.5 py-1 rounded text-sm font-medium ${colorClasses.bg} ${colorClasses.text}`}>
                               {category.name}
                             </span>

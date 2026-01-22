@@ -74,6 +74,7 @@ export async function PATCH(
       color: data.color || 'gray',
       userId: data.user_id,
       createdAt: data.created_at,
+      displayOrder: data.display_order ?? 0,
     };
 
     return NextResponse.json(updatedCategory);

@@ -131,6 +131,9 @@ CREATE TABLE IF NOT EXISTS categories (
 -- Add color column to existing categories table (for existing databases)
 ALTER TABLE categories ADD COLUMN IF NOT EXISTS color TEXT NOT NULL DEFAULT 'gray';
 
+-- Add display_order column for category ordering
+ALTER TABLE categories ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0;
+
 -- Create index for categories
 CREATE INDEX IF NOT EXISTS categories_user_id_idx ON categories(user_id);
 
