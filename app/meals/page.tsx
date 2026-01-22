@@ -72,26 +72,45 @@ export default function MealsPage() {
     return matchesSearch && matchesTime;
   });
 
-  // Toggle candidate status mutation
+  // Toggle candidate status mutation with optimistic update
   const toggleCandidateMutation = useMutation({
     mutationFn: async ({ mealId, isCandidate }: { mealId: string; isCandidate: boolean }) => {
-      const url = isCandidate 
+      const url = isCandidate
         ? `/api/candidates/${mealId}`
         : `/api/candidates?mealId=${mealId}`;
       const method = isCandidate ? 'POST' : 'DELETE';
-      
+
       const response = await fetch(url, { method });
       if (!response.ok) {
         throw new Error('Failed to update candidate status');
       }
-      return response.json();
+      return { mealId, isCandidate };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    onMutate: async ({ mealId, isCandidate }) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['meals'] });
+
+      // Snapshot the previous value
+      const previousMeals = queryClient.getQueryData<Meal[]>(['meals']);
+
+      // Optimistically update the cache
+      queryClient.setQueryData<Meal[]>(['meals'], (old) =>
+        old?.map((meal) =>
+          meal.id === mealId ? { ...meal, isCandidate } : meal
+        )
+      );
+
+      return { previousMeals };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context?.previousMeals) {
+        queryClient.setQueryData(['meals'], context.previousMeals);
+      }
     },
   });
 
-  // Remove from candidates mutation
+  // Remove from candidates mutation with optimistic update
   const removeCandidateMutation = useMutation({
     mutationFn: async (mealId: string) => {
       const response = await fetch(`/api/candidates?mealId=${mealId}`, {
@@ -100,14 +119,28 @@ export default function MealsPage() {
       if (!response.ok) {
         throw new Error('Failed to remove candidate');
       }
-      return response.json();
+      return { mealId };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    onMutate: async (mealId) => {
+      await queryClient.cancelQueries({ queryKey: ['meals'] });
+      const previousMeals = queryClient.getQueryData<Meal[]>(['meals']);
+
+      queryClient.setQueryData<Meal[]>(['meals'], (old) =>
+        old?.map((meal) =>
+          meal.id === mealId ? { ...meal, isCandidate: false } : meal
+        )
+      );
+
+      return { previousMeals };
+    },
+    onError: (_err, _mealId, context) => {
+      if (context?.previousMeals) {
+        queryClient.setQueryData(['meals'], context.previousMeals);
+      }
     },
   });
 
-  // Clear all candidates mutation
+  // Clear all candidates mutation with optimistic update
   const clearAllCandidatesMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch('/api/candidates?mealId=all', {
@@ -116,10 +149,22 @@ export default function MealsPage() {
       if (!response.ok) {
         throw new Error('Failed to clear all candidates');
       }
-      return response.json();
+      return {};
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['meals'] });
+      const previousMeals = queryClient.getQueryData<Meal[]>(['meals']);
+
+      queryClient.setQueryData<Meal[]>(['meals'], (old) =>
+        old?.map((meal) => ({ ...meal, isCandidate: false }))
+      );
+
+      return { previousMeals };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousMeals) {
+        queryClient.setQueryData(['meals'], context.previousMeals);
+      }
     },
   });
 
