@@ -13,6 +13,8 @@ export default function CategoriesPage() {
   const queryClient = useQueryClient();
   const [newCategoryName, setNewCategoryName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   // Check authentication
   useEffect(() => {
@@ -79,6 +81,32 @@ export default function CategoriesPage() {
     },
   });
 
+  // Update category mutation
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update category');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['categories'] });
+      queryClient.invalidateQueries({ queryKey: ['meals'] });
+      setEditingId(null);
+      setEditingName('');
+      setError(null);
+    },
+    onError: (error: Error) => {
+      setError(error.message);
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newCategoryName.trim()) {
@@ -89,6 +117,24 @@ export default function CategoriesPage() {
   const handleDelete = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}"? This will remove the category from all meals that use it.`)) {
       deleteMutation.mutate(id);
+    }
+  };
+
+  const handleEditStart = (category: Category) => {
+    setEditingId(category.id);
+    setEditingName(category.name);
+    setError(null);
+  };
+
+  const handleEditCancel = () => {
+    setEditingId(null);
+    setEditingName('');
+    setError(null);
+  };
+
+  const handleEditSave = (id: string) => {
+    if (editingName.trim()) {
+      updateMutation.mutate({ id, name: editingName.trim() });
     }
   };
 
@@ -143,14 +189,56 @@ export default function CategoriesPage() {
               <ul className="divide-y divide-gray-200">
                 {categories.map((category) => (
                   <li key={category.id} className="py-3 flex items-center justify-between">
-                    <span className="text-gray-900">{category.name}</span>
-                    <button
-                      onClick={() => handleDelete(category.id, category.name)}
-                      disabled={deleteMutation.isPending}
-                      className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
+                    {editingId === category.id ? (
+                      <>
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleEditSave(category.id);
+                            if (e.key === 'Escape') handleEditCancel();
+                          }}
+                          className="flex-1 mr-2 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditSave(category.id)}
+                            disabled={updateMutation.isPending || !editingName.trim()}
+                            className="text-green-600 hover:text-green-700 text-sm disabled:opacity-50"
+                          >
+                            {updateMutation.isPending ? 'Saving...' : 'Save'}
+                          </button>
+                          <button
+                            onClick={handleEditCancel}
+                            disabled={updateMutation.isPending}
+                            className="text-gray-600 hover:text-gray-700 text-sm disabled:opacity-50"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-gray-900">{category.name}</span>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditStart(category)}
+                            className="text-indigo-600 hover:text-indigo-700 text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(category.id, category.name)}
+                            disabled={deleteMutation.isPending}
+                            className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>
