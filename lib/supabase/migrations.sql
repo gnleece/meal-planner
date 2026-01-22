@@ -150,3 +150,15 @@ CREATE POLICY "Users can update their own categories"
 CREATE POLICY "Users can delete their own categories"
   ON categories FOR DELETE
   USING (auth.uid() = user_id);
+
+-- Enable realtime for meals and weeks tables
+-- This allows the app to receive real-time updates when data changes
+ALTER PUBLICATION supabase_realtime ADD TABLE meals;
+ALTER PUBLICATION supabase_realtime ADD TABLE weeks;
+
+-- Note: Storage bucket 'meal-images' must be created via Supabase Dashboard:
+-- 1. Go to Storage in your Supabase project
+-- 2. Create a new bucket named 'meal-images' (private, not public)
+-- 3. Add policies:
+--    - INSERT policy: auth.role() = 'authenticated'
+--    - SELECT policy: auth.role() = 'authenticated'
