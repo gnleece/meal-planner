@@ -74,19 +74,11 @@ export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) 
       </div>
       <div className="p-4">
         <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">{meal.name}</h3>
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-600 flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {meal.estimatedCookingTime > 0 ? `${meal.estimatedCookingTime} min` : 'Time not set'}
+        {meal.category && (
+          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+            {meal.category}
           </span>
-          {meal.category && (
-            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
-              {meal.category}
-            </span>
-          )}
-        </div>
+        )}
       </div>
     </>
   );
