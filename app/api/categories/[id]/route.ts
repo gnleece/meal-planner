@@ -15,13 +15,11 @@ export async function PATCH(
     }
 
     const { id } = await params;
-    const body: { name: string } = await request.json();
+    const body: { name?: string; color?: string } = await request.json();
 
-    if (!body.name || !body.name.trim()) {
-      return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
+    if (!body.name?.trim() && !body.color) {
+      return NextResponse.json({ error: 'Category name or color is required' }, { status: 400 });
     }
-
-    const newName = body.name.trim();
 
     // Get the current category to find its old name
     const { data: category, error: fetchError } = await supabase
@@ -36,11 +34,19 @@ export async function PATCH(
     }
 
     const oldName = category.name;
+    const updateData: { name?: string; color?: string } = {};
 
-    // Update the category name
+    if (body.name?.trim()) {
+      updateData.name = body.name.trim();
+    }
+    if (body.color) {
+      updateData.color = body.color;
+    }
+
+    // Update the category
     const { data, error } = await supabase
       .from('categories')
-      .update({ name: newName })
+      .update(updateData)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
@@ -53,11 +59,11 @@ export async function PATCH(
       throw error;
     }
 
-    // Update all meals that use this category
-    if (oldName !== newName) {
+    // Update all meals that use this category if name changed
+    if (updateData.name && oldName !== updateData.name) {
       await supabase
         .from('meals')
-        .update({ category: newName })
+        .update({ category: updateData.name })
         .eq('user_id', user.id)
         .eq('category', oldName);
     }
@@ -65,6 +71,7 @@ export async function PATCH(
     const updatedCategory: Category = {
       id: data.id,
       name: data.name,
+      color: data.color || 'gray',
       userId: data.user_id,
       createdAt: data.created_at,
     };

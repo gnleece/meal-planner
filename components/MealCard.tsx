@@ -2,15 +2,18 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Meal } from '@/lib/types';
+import { Meal, Category, getCategoryColorClasses } from '@/lib/types';
 
 interface MealCardProps {
   meal: Meal;
   isSelected?: boolean;
   onSelect?: (mealId: string, selected: boolean) => void;
+  categories?: Category[];
 }
 
-export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) {
+export function MealCard({ meal, isSelected = false, onSelect, categories = [] }: MealCardProps) {
+  const category = categories.find(c => c.name === meal.category);
+  const categoryColor = category ? getCategoryColorClasses(category.color) : getCategoryColorClasses('gray');
   const handleCardClick = () => {
     if (onSelect) {
       onSelect(meal.id, !isSelected);
@@ -75,7 +78,7 @@ export function MealCard({ meal, isSelected = false, onSelect }: MealCardProps) 
       <div className="p-4">
         <h3 className="font-semibold text-lg text-gray-900 mb-2 line-clamp-2">{meal.name}</h3>
         {meal.category && (
-          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">
+          <span className={`text-xs px-2 py-0.5 rounded font-medium ${categoryColor.bg} ${categoryColor.text}`}>
             {meal.category}
           </span>
         )}

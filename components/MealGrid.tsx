@@ -1,15 +1,16 @@
 'use client';
 
-import { Meal } from '@/lib/types';
+import { Meal, Category } from '@/lib/types';
 import { MealCard } from './MealCard';
 
 interface MealGridProps {
   meals: Meal[];
   selectedMealIds?: Set<string>;
   onSelectMeal?: (mealId: string, selected: boolean) => void;
+  categories?: Category[];
 }
 
-export function MealGrid({ meals, selectedMealIds, onSelectMeal }: MealGridProps) {
+export function MealGrid({ meals, selectedMealIds, onSelectMeal, categories = [] }: MealGridProps) {
   if (meals.length === 0) {
     return (
       <div className="text-center py-12">
@@ -26,6 +27,7 @@ export function MealGrid({ meals, selectedMealIds, onSelectMeal }: MealGridProps
           meal={meal}
           isSelected={selectedMealIds?.has(meal.id)}
           onSelect={onSelectMeal}
+          categories={categories}
         />
       ))}
     </div>

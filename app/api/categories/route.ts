@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
     const categories: Category[] = data.map((row: any) => ({
       id: row.id,
       name: row.name,
+      color: row.color || 'gray',
       userId: row.user_id,
       createdAt: row.created_at,
     }));
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const body: { name: string } = await request.json();
+    const body: { name: string; color?: string } = await request.json();
 
     if (!body.name || !body.name.trim()) {
       return NextResponse.json({ error: 'Category name is required' }, { status: 400 });
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: user.id,
         name: body.name.trim(),
+        color: body.color || 'gray',
       })
       .select()
       .single();
@@ -71,6 +73,7 @@ export async function POST(request: NextRequest) {
     const category: Category = {
       id: data.id,
       name: data.name,
+      color: data.color || 'gray',
       userId: data.user_id,
       createdAt: data.created_at,
     };

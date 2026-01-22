@@ -123,9 +123,13 @@ CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
+  color TEXT NOT NULL DEFAULT 'gray',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   UNIQUE(user_id, name)  -- Prevent duplicate category names per user
 );
+
+-- Add color column to existing categories table (for existing databases)
+ALTER TABLE categories ADD COLUMN IF NOT EXISTS color TEXT NOT NULL DEFAULT 'gray';
 
 -- Create index for categories
 CREATE INDEX IF NOT EXISTS categories_user_id_idx ON categories(user_id);

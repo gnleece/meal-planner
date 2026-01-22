@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Category } from '@/lib/types';
+import { Category, CATEGORY_COLORS, getCategoryColorClasses } from '@/lib/types';
 import { createClient } from '@/lib/supabase/client';
 import { Navigation } from '@/components/Navigation';
 
@@ -12,9 +12,11 @@ export default function CategoriesPage() {
   const supabase = createClient();
   const queryClient = useQueryClient();
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [newCategoryColor, setNewCategoryColor] = useState('gray');
   const [error, setError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingColor, setEditingColor] = useState('gray');
 
   // Check authentication
   useEffect(() => {
@@ -39,11 +41,11 @@ export default function CategoriesPage() {
 
   // Create category mutation
   const createMutation = useMutation({
-    mutationFn: async (name: string) => {
+    mutationFn: async ({ name, color }: { name: string; color: string }) => {
       const response = await fetch('/api/categories', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, color }),
       });
       if (!response.ok) {
         const data = await response.json();
@@ -54,6 +56,7 @@ export default function CategoriesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
       setNewCategoryName('');
+      setNewCategoryColor('gray');
       setError(null);
     },
     onError: (error: Error) => {
@@ -83,11 +86,11 @@ export default function CategoriesPage() {
 
   // Update category mutation
   const updateMutation = useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
+    mutationFn: async ({ id, name, color }: { id: string; name: string; color: string }) => {
       const response = await fetch(`/api/categories/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, color }),
       });
       if (!response.ok) {
         const data = await response.json();
@@ -100,6 +103,7 @@ export default function CategoriesPage() {
       queryClient.invalidateQueries({ queryKey: ['meals'] });
       setEditingId(null);
       setEditingName('');
+      setEditingColor('gray');
       setError(null);
     },
     onError: (error: Error) => {
@@ -110,7 +114,7 @@ export default function CategoriesPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (newCategoryName.trim()) {
-      createMutation.mutate(newCategoryName.trim());
+      createMutation.mutate({ name: newCategoryName.trim(), color: newCategoryColor });
     }
   };
 
@@ -123,18 +127,20 @@ export default function CategoriesPage() {
   const handleEditStart = (category: Category) => {
     setEditingId(category.id);
     setEditingName(category.name);
+    setEditingColor(category.color || 'gray');
     setError(null);
   };
 
   const handleEditCancel = () => {
     setEditingId(null);
     setEditingName('');
+    setEditingColor('gray');
     setError(null);
   };
 
   const handleEditSave = (id: string) => {
     if (editingName.trim()) {
-      updateMutation.mutate({ id, name: editingName.trim() });
+      updateMutation.mutate({ id, name: editingName.trim(), color: editingColor });
     }
   };
 
@@ -151,7 +157,7 @@ export default function CategoriesPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Add New Category
             </label>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               <input
                 type="text"
                 value={newCategoryName}
@@ -166,6 +172,22 @@ export default function CategoriesPage() {
               >
                 {createMutation.isPending ? 'Adding...' : 'Add'}
               </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {CATEGORY_COLORS.map((color) => {
+                const colorClasses = getCategoryColorClasses(color.value);
+                return (
+                  <button
+                    key={color.value}
+                    type="button"
+                    onClick={() => setNewCategoryColor(color.value)}
+                    className={`w-8 h-8 rounded-full ${colorClasses.bg} ${
+                      newCategoryColor === color.value ? 'ring-2 ring-offset-2 ' + colorClasses.ring : ''
+                    } hover:scale-110 transition-transform`}
+                    title={color.name}
+                  />
+                );
+              })}
             </div>
             {error && (
               <p className="mt-2 text-sm text-red-600">{error}</p>
@@ -187,60 +209,83 @@ export default function CategoriesPage() {
               </p>
             ) : (
               <ul className="divide-y divide-gray-200">
-                {categories.map((category) => (
-                  <li key={category.id} className="py-3 flex items-center justify-between">
-                    {editingId === category.id ? (
-                      <>
-                        <input
-                          type="text"
-                          value={editingName}
-                          onChange={(e) => setEditingName(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleEditSave(category.id);
-                            if (e.key === 'Escape') handleEditCancel();
-                          }}
-                          className="flex-1 mr-2 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditSave(category.id)}
-                            disabled={updateMutation.isPending || !editingName.trim()}
-                            className="text-green-600 hover:text-green-700 text-sm disabled:opacity-50"
-                          >
-                            {updateMutation.isPending ? 'Saving...' : 'Save'}
-                          </button>
-                          <button
-                            onClick={handleEditCancel}
-                            disabled={updateMutation.isPending}
-                            className="text-gray-600 hover:text-gray-700 text-sm disabled:opacity-50"
-                          >
-                            Cancel
-                          </button>
+                {categories.map((category) => {
+                  const colorClasses = getCategoryColorClasses(category.color);
+                  return (
+                    <li key={category.id} className="py-4">
+                      {editingId === category.id ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={editingName}
+                              onChange={(e) => setEditingName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleEditSave(category.id);
+                                if (e.key === 'Escape') handleEditCancel();
+                              }}
+                              className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() => handleEditSave(category.id)}
+                              disabled={updateMutation.isPending || !editingName.trim()}
+                              className="text-green-600 hover:text-green-700 text-sm disabled:opacity-50"
+                            >
+                              {updateMutation.isPending ? 'Saving...' : 'Save'}
+                            </button>
+                            <button
+                              onClick={handleEditCancel}
+                              disabled={updateMutation.isPending}
+                              className="text-gray-600 hover:text-gray-700 text-sm disabled:opacity-50"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {CATEGORY_COLORS.map((color) => {
+                              const editColorClasses = getCategoryColorClasses(color.value);
+                              return (
+                                <button
+                                  key={color.value}
+                                  type="button"
+                                  onClick={() => setEditingColor(color.value)}
+                                  className={`w-6 h-6 rounded-full ${editColorClasses.bg} ${
+                                    editingColor === color.value ? 'ring-2 ring-offset-1 ' + editColorClasses.ring : ''
+                                  } hover:scale-110 transition-transform`}
+                                  title={color.name}
+                                />
+                              );
+                            })}
+                          </div>
                         </div>
-                      </>
-                    ) : (
-                      <>
-                        <span className="text-gray-900">{category.name}</span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleEditStart(category)}
-                            className="text-indigo-600 hover:text-indigo-700 text-sm"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(category.id, category.name)}
-                            disabled={deleteMutation.isPending}
-                            className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
-                          >
-                            Delete
-                          </button>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className={`px-2.5 py-1 rounded text-sm font-medium ${colorClasses.bg} ${colorClasses.text}`}>
+                              {category.name}
+                            </span>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditStart(category)}
+                              className="text-indigo-600 hover:text-indigo-700 text-sm"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(category.id, category.name)}
+                              disabled={deleteMutation.isPending}
+                              className="text-red-600 hover:text-red-700 text-sm disabled:opacity-50"
+                            >
+                              Delete
+                            </button>
+                          </div>
                         </div>
-                      </>
-                    )}
-                  </li>
-                ))}
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import { Meal, Week } from '@/lib/types';
+import { Meal, Week, Category } from '@/lib/types';
 import { MealGrid } from '@/components/MealGrid';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -33,6 +33,18 @@ export default function CandidatesPage() {
       const response = await fetch('/api/meals');
       if (!response.ok) {
         throw new Error('Failed to fetch meals');
+      }
+      return response.json();
+    },
+  });
+
+  // Fetch categories for color display
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const response = await fetch('/api/categories');
+      if (!response.ok) {
+        throw new Error('Failed to fetch categories');
       }
       return response.json();
     },
@@ -301,6 +313,7 @@ export default function CandidatesPage() {
               meals={candidateMeals}
               selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
               onSelectMeal={handleSelectMeal}
+              categories={categories}
             />
           </div>
         )}
