@@ -244,7 +244,7 @@ export default function AddMealPage() {
         <div className="mb-6">
           <Link
             href="/meals"
-            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 text-sm"
+            className="text-aubergine-400 hover:text-aubergine-600 flex items-center gap-2 text-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -271,7 +271,7 @@ export default function AddMealPage() {
                   }}
                   className={`px-4 py-2 rounded-md border transition-colors ${
                     importMethod === method
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
+                      ? 'border-aubergine-700 bg-aubergine-100 text-aubergine-700'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
@@ -293,13 +293,13 @@ export default function AddMealPage() {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://example.com/recipe"
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                 />
                 <button
                   type="button"
                   onClick={handleImportUrl}
                   disabled={isImporting}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-aubergine-700 text-white rounded-md hover:bg-aubergine-800 disabled:opacity-50"
                 >
                   {isImporting ? 'Importing...' : 'Import'}
                 </button>
@@ -322,7 +322,7 @@ export default function AddMealPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export default function AddMealPage() {
                       className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
                         isUploadingImage
                           ? 'border-gray-300 bg-gray-50'
-                          : 'border-gray-300 hover:border-indigo-500 hover:bg-indigo-50'
+                          : 'border-gray-300 hover:border-aubergine-400 hover:bg-aubergine-100'
                       }`}
                     >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -407,7 +407,7 @@ export default function AddMealPage() {
                   value={estimatedCookingTime || ''}
                   onChange={(e) => setEstimatedCookingTime(parseInt(e.target.value) || 0)}
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                 />
               </div>
 
@@ -418,7 +418,7 @@ export default function AddMealPage() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                 >
                   <option value="">No category</option>
                   {categories.map((cat) => (
@@ -437,7 +437,7 @@ export default function AddMealPage() {
                   <button
                     type="button"
                     onClick={handleAddIngredient}
-                    className="text-sm text-indigo-600 hover:text-indigo-700"
+                    className="text-sm text-aubergine-400 hover:text-aubergine-600"
                   >
                     + Add Ingredient
                   </button>
@@ -450,7 +450,7 @@ export default function AddMealPage() {
                         value={ingredient.name}
                         onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                         placeholder="Ingredient name"
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                       />
                       {ingredients.length > 1 && (
                         <button
@@ -474,7 +474,7 @@ export default function AddMealPage() {
                   <button
                     type="button"
                     onClick={handleAddInstruction}
-                    className="text-sm text-indigo-600 hover:text-indigo-700"
+                    className="text-sm text-aubergine-400 hover:text-aubergine-600"
                   >
                     + Add Step
                   </button>
@@ -482,7 +482,7 @@ export default function AddMealPage() {
                 <div className="space-y-2">
                   {instructions.map((instruction, index) => (
                     <div key={index} className="flex gap-2">
-                      <span className="flex-shrink-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-semibold mt-2">
+                      <span className="flex-shrink-0 w-8 h-8 bg-aubergine-700 text-white rounded-full flex items-center justify-center font-semibold mt-2">
                         {index + 1}
                       </span>
                       <div className="flex-1 flex gap-2">
@@ -491,7 +491,7 @@ export default function AddMealPage() {
                           onChange={(e) => handleInstructionChange(index, e.target.value)}
                           placeholder="Instruction step"
                           rows={2}
-                          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                          className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                         />
                         {instructions.length > 1 && (
                           <button
@@ -512,7 +512,7 @@ export default function AddMealPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex-1 bg-aubergine-700 text-white px-6 py-3 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Meal'}
                 </button>

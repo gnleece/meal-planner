@@ -215,7 +215,7 @@ export default function EditMealPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-aubergine-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading meal...</p>
         </div>
       </div>
@@ -227,7 +227,7 @@ export default function EditMealPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600">Meal not found or error loading meal.</p>
-          <Link href="/meals" className="text-indigo-600 hover:text-indigo-700 mt-4 inline-block">
+          <Link href="/meals" className="text-aubergine-400 hover:text-aubergine-600 mt-4 inline-block">
             Back to meals
           </Link>
         </div>
@@ -243,7 +243,7 @@ export default function EditMealPage() {
         <div className="mb-6">
           <Link
             href={`/meals/${mealId}`}
-            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 text-sm"
+            className="text-aubergine-400 hover:text-aubergine-600 flex items-center gap-2 text-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -264,7 +264,7 @@ export default function EditMealPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
               />
             </div>
 
@@ -275,7 +275,7 @@ export default function EditMealPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
               >
                 <option value="">No category</option>
                 {categories.map((cat) => (
@@ -318,7 +318,7 @@ export default function EditMealPage() {
                     className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
                       isUploadingImage
                         ? 'border-gray-300 bg-gray-50'
-                        : 'border-gray-300 hover:border-indigo-500 hover:bg-indigo-50'
+                        : 'border-gray-300 hover:border-aubergine-400 hover:bg-aubergine-100'
                     }`}
                   >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
@@ -367,7 +367,7 @@ export default function EditMealPage() {
                 value={estimatedCookingTime || ''}
                 onChange={(e) => setEstimatedCookingTime(parseInt(e.target.value) || 0)}
                 min="0"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
               />
             </div>
 
@@ -379,7 +379,7 @@ export default function EditMealPage() {
                 <button
                   type="button"
                   onClick={handleAddIngredient}
-                  className="text-sm text-indigo-600 hover:text-indigo-700"
+                  className="text-sm text-aubergine-400 hover:text-aubergine-600"
                 >
                   + Add Ingredient
                 </button>
@@ -392,21 +392,21 @@ export default function EditMealPage() {
                       value={ingredient.amount || ''}
                       onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
                       placeholder="Amount"
-                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                     />
                     <input
                       type="text"
                       value={ingredient.unit || ''}
                       onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
                       placeholder="Unit"
-                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                      className="w-24 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                     />
                     <input
                       type="text"
                       value={ingredient.name}
                       onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
                       placeholder="Ingredient name"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                     />
                     {ingredients.length > 1 && (
                       <button
@@ -430,7 +430,7 @@ export default function EditMealPage() {
                 <button
                   type="button"
                   onClick={handleAddInstruction}
-                  className="text-sm text-indigo-600 hover:text-indigo-700"
+                  className="text-sm text-aubergine-400 hover:text-aubergine-600"
                 >
                   + Add Step
                 </button>
@@ -438,7 +438,7 @@ export default function EditMealPage() {
               <div className="space-y-2">
                 {instructions.map((instruction, index) => (
                   <div key={index} className="flex gap-2">
-                    <span className="flex-shrink-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-semibold mt-2">
+                    <span className="flex-shrink-0 w-8 h-8 bg-aubergine-700 text-white rounded-full flex items-center justify-center font-semibold mt-2">
                       {index + 1}
                     </span>
                     <div className="flex-1 flex gap-2">
@@ -447,7 +447,7 @@ export default function EditMealPage() {
                         onChange={(e) => handleInstructionChange(index, e.target.value)}
                         placeholder="Instruction step"
                         rows={2}
-                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                       />
                       {instructions.length > 1 && (
                         <button
@@ -468,7 +468,7 @@ export default function EditMealPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                className="flex-1 bg-aubergine-700 text-white px-6 py-3 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
               >
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>

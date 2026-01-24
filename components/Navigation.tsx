@@ -35,7 +35,7 @@ export function Navigation() {
           <div className="flex items-center gap-8">
             <Link
               href="/meals"
-              className="text-xl font-bold text-gray-900 hover:text-indigo-600 transition-colors"
+              className="text-xl font-bold text-gray-900 hover:text-aubergine-400 transition-colors"
             >
               Meal Planner
             </Link>
@@ -44,7 +44,7 @@ export function Navigation() {
                 href="/meals"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive('/meals')
-                    ? 'bg-indigo-100 text-indigo-700'
+                    ? 'bg-aubergine-100 text-aubergine-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -54,7 +54,7 @@ export function Navigation() {
                 href="/candidates"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive('/candidates')
-                    ? 'bg-indigo-100 text-indigo-700'
+                    ? 'bg-aubergine-100 text-aubergine-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -64,7 +64,7 @@ export function Navigation() {
                 href="/categories"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive('/categories')
-                    ? 'bg-indigo-100 text-indigo-700'
+                    ? 'bg-aubergine-100 text-aubergine-700'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -75,7 +75,7 @@ export function Navigation() {
           <div className="flex items-center gap-4">
             <Link
               href="/meals/add"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors text-sm font-medium"
+              className="bg-aubergine-700 text-white px-4 py-2 rounded-md hover:bg-aubergine-800 transition-colors text-sm font-medium"
             >
               Add Meal
             </Link>

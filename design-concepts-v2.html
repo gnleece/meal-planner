@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Planner - Design Concepts V2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 60px 20px 20px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      color: #888;
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .concept-section {
+      max-width: 1200px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .concept-label {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .concept-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .concept-description {
+      color: #999;
+      margin-bottom: 30px;
+      max-width: 600px;
+    }
+
+    /* Color palette display */
+    .palette {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .palette-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      font-size: 0.55rem;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* ==================== */
+    /* BASE CARD STYLES (Concept 1 layout + Concept 3 typography) */
+    /* ==================== */
+
+    .demo {
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .nav .logo {
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .nav .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav .add-btn {
+      padding: 10px 20px;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav .add-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+    }
+
+    .card:hover .card-image img {
+      transform: scale(1.05);
+    }
+
+    .card .card-image {
+      aspect-ratio: 16/10;
+      overflow: hidden;
+    }
+
+    .card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .card .card-content {
+      padding: 20px;
+    }
+
+    .card .card-category {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .card .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .card.selected::before {
+      content: "✓";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* ==================== */
+    /* PALETTE A: OCEAN */
+    /* ==================== */
+
+    .ocean .concept-label { background: #2D4A5E; }
+    .ocean .demo { background: #F5F7F8; }
+    .ocean .nav .logo { color: #1E3A4C; }
+    .ocean .nav .nav-link { color: #1E3A4C; }
+    .ocean .nav .nav-link:hover { background: #E8EEF1; }
+    .ocean .nav .nav-link.active { background: #2D4A5E; color: white; }
+    .ocean .nav .add-btn { background: #1E3A4C; }
+    .ocean .card .card-category { background: #E0EBF0; color: #2D4A5E; }
+    .ocean .card .card-title { color: #1E3A4C; }
+    .ocean .card.selected { outline: 3px solid #2D4A5E; outline-offset: -3px; }
+    .ocean .card.selected::before { background: #2D4A5E; }
+
+    /* ==================== */
+    /* PALETTE B: FOREST */
+    /* ==================== */
+
+    .forest .concept-label { background: #2D5A45; }
+    .forest .demo { background: #F7F9F5; }
+    .forest .nav .logo { color: #1E4332; }
+    .forest .nav .nav-link { color: #1E4332; }
+    .forest .nav .nav-link:hover { background: #E8F0E5; }
+    .forest .nav .nav-link.active { background: #2D5A45; color: white; }
+    .forest .nav .add-btn { background: #1E4332; }
+    .forest .card .card-category { background: #DDE9D8; color: #2D5A45; }
+    .forest .card .card-title { color: #1E4332; }
+    .forest .card.selected { outline: 3px solid #2D5A45; outline-offset: -3px; }
+    .forest .card.selected::before { background: #2D5A45; }
+
+    /* ==================== */
+    /* PALETTE C: PLUM */
+    /* ==================== */
+
+    .plum .concept-label { background: #6B4C5A; }
+    .plum .demo { background: #FAF7F8; }
+    .plum .nav .logo { color: #4A2D3A; }
+    .plum .nav .nav-link { color: #4A2D3A; }
+    .plum .nav .nav-link:hover { background: #F3E8EC; }
+    .plum .nav .nav-link.active { background: #6B4C5A; color: white; }
+    .plum .nav .add-btn { background: #4A2D3A; }
+    .plum .card .card-category { background: #F0E4E8; color: #6B4C5A; }
+    .plum .card .card-title { color: #4A2D3A; }
+    .plum .card.selected { outline: 3px solid #6B4C5A; outline-offset: -3px; }
+    .plum .card.selected::before { background: #6B4C5A; }
+
+    /* ==================== */
+    /* PALETTE D: SLATE + CORAL */
+    /* ==================== */
+
+    .coral .concept-label { background: #E07A5F; }
+    .coral .demo { background: #F8F8F6; }
+    .coral .nav .logo { color: #3D3D3D; }
+    .coral .nav .nav-link { color: #3D3D3D; }
+    .coral .nav .nav-link:hover { background: #F0EFED; }
+    .coral .nav .nav-link.active { background: #E07A5F; color: white; }
+    .coral .nav .add-btn { background: #3D3D3D; }
+    .coral .card .card-category { background: #FCE8E3; color: #C25E45; }
+    .coral .card .card-title { color: #3D3D3D; }
+    .coral .card.selected { outline: 3px solid #E07A5F; outline-offset: -3px; }
+    .coral .card.selected::before { background: #E07A5F; }
+
+    /* ==================== */
+    /* PALETTE E: NAVY + GOLD */
+    /* ==================== */
+
+    .navy .concept-label { background: #2C3E50; }
+    .navy .demo { background: #F9F9F7; }
+    .navy .nav .logo { color: #2C3E50; }
+    .navy .nav .nav-link { color: #2C3E50; }
+    .navy .nav .nav-link:hover { background: #EEF1F3; }
+    .navy .nav .nav-link.active { background: #2C3E50; color: #D4A853; }
+    .navy .nav .add-btn { background: #D4A853; color: #2C3E50; }
+    .navy .card .card-category { background: #FDF6E3; color: #8B6914; }
+    .navy .card .card-title { color: #2C3E50; }
+    .navy .card.selected { outline: 3px solid #D4A853; outline-offset: -3px; }
+    .navy .card.selected::before { background: #2C3E50; }
+
+    /* ==================== */
+    /* PALETTE F: CHARCOAL + TEAL */
+    /* ==================== */
+
+    .teal .concept-label { background: #2A9D8F; }
+    .teal .demo { background: #F7FAFA; }
+    .teal .nav .logo { color: #264653; }
+    .teal .nav .nav-link { color: #264653; }
+    .teal .nav .nav-link:hover { background: #E8F4F3; }
+    .teal .nav .nav-link.active { background: #2A9D8F; color: white; }
+    .teal .nav .add-btn { background: #264653; }
+    .teal .card .card-category { background: #D8F0ED; color: #1E7A6E; }
+    .teal .card .card-title { color: #264653; }
+    .teal .card.selected { outline: 3px solid #2A9D8F; outline-offset: -3px; }
+    .teal .card.selected::before { background: #2A9D8F; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+      .nav { flex-wrap: wrap; gap: 16px; }
+      .nav-links { order: 3; width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Design Concepts V2</h1>
+    <p>Concept 1's card style + Concept 3's typography (DM Sans), with different color palettes</p>
+  </div>
+
+  <!-- PALETTE A: OCEAN -->
+  <section class="concept-section ocean">
+    <span class="concept-label">Palette A</span>
+    <h2 class="concept-title">Ocean</h2>
+    <p class="concept-description">Deep slate blue with cool, calming tones. Professional and trustworthy.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #1E3A4C;">Primary</div>
+        <div class="palette-swatch" style="background: #2D4A5E;">Accent</div>
+        <div class="palette-swatch" style="background: #F5F7F8; color: #1E3A4C; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #E0EBF0; color: #2D4A5E; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE B: FOREST -->
+  <section class="concept-section forest">
+    <span class="concept-label">Palette B</span>
+    <h2 class="concept-title">Forest</h2>
+    <p class="concept-description">Deep forest green with earthy warmth. Natural and organic feeling.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #1E4332;">Primary</div>
+        <div class="palette-swatch" style="background: #2D5A45;">Accent</div>
+        <div class="palette-swatch" style="background: #F7F9F5; color: #1E4332; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #DDE9D8; color: #2D5A45; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE C: PLUM -->
+  <section class="concept-section plum">
+    <span class="concept-label">Palette C</span>
+    <h2 class="concept-title">Plum</h2>
+    <p class="concept-description">Rich plum and burgundy tones. Sophisticated and warm.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #4A2D3A;">Primary</div>
+        <div class="palette-swatch" style="background: #6B4C5A;">Accent</div>
+        <div class="palette-swatch" style="background: #FAF7F8; color: #4A2D3A; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #F0E4E8; color: #6B4C5A; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE D: SLATE + CORAL -->
+  <section class="concept-section coral">
+    <span class="concept-label">Palette D</span>
+    <h2 class="concept-title">Slate + Coral</h2>
+    <p class="concept-description">Neutral slate with vibrant coral accents. Modern with a pop of energy.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #3D3D3D;">Primary</div>
+        <div class="palette-swatch" style="background: #E07A5F;">Accent</div>
+        <div class="palette-swatch" style="background: #F8F8F6; color: #3D3D3D; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #FCE8E3; color: #C25E45; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE E: NAVY + GOLD -->
+  <section class="concept-section navy">
+    <span class="concept-label">Palette E</span>
+    <h2 class="concept-title">Navy + Gold</h2>
+    <p class="concept-description">Classic navy with warm gold accents. Elegant and timeless.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #2C3E50;">Primary</div>
+        <div class="palette-swatch" style="background: #D4A853;">Accent</div>
+        <div class="palette-swatch" style="background: #F9F9F7; color: #2C3E50; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #FDF6E3; color: #8B6914; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PALETTE F: CHARCOAL + TEAL -->
+  <section class="concept-section teal">
+    <span class="concept-label">Palette F</span>
+    <h2 class="concept-title">Charcoal + Teal</h2>
+    <p class="concept-description">Deep charcoal with fresh teal accents. Contemporary and refreshing.</p>
+
+    <div class="demo">
+      <nav class="nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="grid">
+        <div class="card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #264653;">Primary</div>
+        <div class="palette-swatch" style="background: #2A9D8F;">Accent</div>
+        <div class="palette-swatch" style="background: #F7FAFA; color: #264653; text-shadow: none;">BG</div>
+        <div class="palette-swatch" style="background: #D8F0ED; color: #1E7A6E; text-shadow: none;">Badge</div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -199,12 +199,12 @@ export default function CategoriesPage() {
                 value={newCategoryName}
                 onChange={(e) => setNewCategoryName(e.target.value)}
                 placeholder="e.g., Breakfast, Dinner, Dessert"
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
               />
               <button
                 type="submit"
                 disabled={createMutation.isPending || !newCategoryName.trim()}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-4 py-2 bg-aubergine-700 text-white rounded-md hover:bg-aubergine-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {createMutation.isPending ? 'Adding...' : 'Add'}
               </button>
@@ -236,7 +236,7 @@ export default function CategoriesPage() {
 
             {isLoading ? (
               <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-aubergine-700 mx-auto"></div>
                 <p className="mt-2 text-gray-600">Loading categories...</p>
               </div>
             ) : categories.length === 0 ? (
@@ -260,7 +260,7 @@ export default function CategoriesPage() {
                                 if (e.key === 'Enter') handleEditSave(category.id);
                                 if (e.key === 'Escape') handleEditCancel();
                               }}
-                              className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900"
+                              className="flex-1 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
                               autoFocus
                             />
                             <button
@@ -327,7 +327,7 @@ export default function CategoriesPage() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditStart(category)}
-                              className="text-indigo-600 hover:text-indigo-700 text-sm"
+                              className="text-aubergine-400 hover:text-aubergine-600 text-sm"
                             >
                               Edit
                             </button>

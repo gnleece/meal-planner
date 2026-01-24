@@ -70,7 +70,7 @@ export function PhotoOCRImport({ onExtract, onClose }: PhotoOCRImportProps) {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400"
         />
         <p className="mt-1 text-sm text-gray-500">
           Upload a clear photo of a cookbook page or recipe
@@ -92,7 +92,7 @@ export function PhotoOCRImport({ onExtract, onClose }: PhotoOCRImportProps) {
               type="button"
               onClick={handleExtract}
               disabled={isProcessing}
-              className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="w-full bg-aubergine-700 text-white px-4 py-2 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
             >
               {isProcessing ? 'Extracting text...' : 'Extract Text from Image'}
             </button>
@@ -116,7 +116,7 @@ export function PhotoOCRImport({ onExtract, onClose }: PhotoOCRImportProps) {
               value={extractedText}
               onChange={(e) => setExtractedText(e.target.value)}
               rows={10}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 font-mono text-sm"
             />
           </div>
 
@@ -124,7 +124,7 @@ export function PhotoOCRImport({ onExtract, onClose }: PhotoOCRImportProps) {
             <button
               type="button"
               onClick={handleUseText}
-              className="flex-1 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+              className="flex-1 bg-aubergine-700 text-white px-4 py-2 rounded-md hover:bg-aubergine-800"
             >
               Use This Text
             </button>

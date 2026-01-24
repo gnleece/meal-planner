@@ -221,7 +221,7 @@ export default function CandidatesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-aubergine-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading candidates...</p>
         </div>
       </div>
@@ -238,18 +238,18 @@ export default function CandidatesPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Currently Selected */}
         <div className="mb-6 space-y-4">
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+          <div className="bg-aubergine-50 border border-aubergine-200 rounded-md p-4">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h2 className="text-lg font-semibold text-blue-900 mb-2">
+                <h2 className="text-lg font-semibold text-aubergine-900 mb-2">
                   Currently Selected
                 </h2>
-                <p className="text-sm text-blue-800 mb-2">
+                <p className="text-sm text-aubergine-700 mb-2">
                   {selectedMeals.length} meal{selectedMeals.length !== 1 ? 's' : ''} selected
                 </p>
                 {selectedMeals.length > 0 && (
                   <div className="mt-2">
-                    <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                    <ul className="text-sm text-aubergine-600 list-disc list-inside space-y-1">
                       {selectedMeals.map((meal) => (
                         <li key={meal.id}>{meal.name}</li>
                       ))}
@@ -283,7 +283,7 @@ export default function CandidatesPage() {
             </p>
             <Link
               href="/meals"
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
+              className="text-aubergine-400 hover:text-aubergine-600 font-medium"
             >
               Browse All Meals →
             </Link>

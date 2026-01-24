@@ -34,7 +34,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
           <Link
             href={`/meals/${meal.id}/edit`}
             onClick={handleInfoClick}
-            className="bg-white/90 hover:bg-white text-gray-700 hover:text-indigo-600 rounded-full p-1.5 shadow-sm transition-colors"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-1.5 shadow-sm transition-colors"
             aria-label="Edit meal"
             title="Edit"
           >
@@ -45,7 +45,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
           <Link
             href={`/meals/${meal.id}`}
             onClick={handleInfoClick}
-            className="bg-white/90 hover:bg-white text-gray-700 hover:text-indigo-600 rounded-full p-1.5 shadow-sm transition-colors"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-1.5 shadow-sm transition-colors"
             aria-label="View meal details"
             title="View details"
           >
@@ -58,7 +58,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
       
       {/* Selection indicator */}
       {isSelected && (
-        <div className="absolute top-2 left-2 z-10 bg-indigo-600 text-white rounded-full p-1.5">
+        <div className="absolute top-2 left-2 z-10 bg-aubergine-700 text-white rounded-full p-1.5">
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
           </svg>
@@ -108,7 +108,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
         onClick={handleCardClick}
         className={`rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all relative cursor-pointer ${
           isSelected 
-            ? 'bg-indigo-50 border-2 border-indigo-500' 
+            ? 'bg-aubergine-100 border-2 border-aubergine-400' 
             : 'bg-white border-2 border-transparent'
         }`}
       >
@@ -122,7 +122,7 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
     <Link href={`/meals/${meal.id}`} className="block">
       <div className={`rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all relative ${
         isSelected 
-          ? 'bg-indigo-50 border-2 border-indigo-500' 
+          ? 'bg-aubergine-100 border-2 border-aubergine-400' 
           : 'bg-white border-2 border-transparent'
       }`}>
         {cardContent}

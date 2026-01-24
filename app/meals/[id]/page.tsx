@@ -106,7 +106,7 @@ export default function MealDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-aubergine-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading meal...</p>
         </div>
       </div>
@@ -118,7 +118,7 @@ export default function MealDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600">Meal not found or error loading meal.</p>
-          <Link href="/meals" className="text-indigo-600 hover:text-indigo-700 mt-4 inline-block">
+          <Link href="/meals" className="text-aubergine-400 hover:text-aubergine-600 mt-4 inline-block">
             Back to meals
           </Link>
         </div>
@@ -134,7 +134,7 @@ export default function MealDetailPage() {
         <div className="mb-6 flex items-center justify-between">
           <Link
             href="/meals"
-            className="text-indigo-600 hover:text-indigo-700 flex items-center gap-2 text-sm"
+            className="text-aubergine-400 hover:text-aubergine-600 flex items-center gap-2 text-sm"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -223,7 +223,7 @@ export default function MealDetailPage() {
                     href={meal.source.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 hover:text-indigo-700"
+                    className="text-aubergine-400 hover:text-aubergine-600"
                   >
                     View original recipe
                   </a>
@@ -238,7 +238,7 @@ export default function MealDetailPage() {
                 <ul className="space-y-2">
                   {meal.ingredients.map((ingredient, index) => (
                     <li key={index} className="flex items-start gap-2">
-                      <span className="text-indigo-600 mt-1">•</span>
+                      <span className="text-aubergine-400 mt-1">•</span>
                       <span className="text-gray-700">
                         {ingredient.amount && `${ingredient.amount} `}
                         {ingredient.unit && `${ingredient.unit} `}
@@ -258,7 +258,7 @@ export default function MealDetailPage() {
                 <ol className="space-y-4">
                   {meal.instructions.map((instruction, index) => (
                     <li key={index} className="flex gap-4">
-                      <span className="flex-shrink-0 w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center font-semibold">
+                      <span className="flex-shrink-0 w-8 h-8 bg-aubergine-700 text-white rounded-full flex items-center justify-center font-semibold">
                         {index + 1}
                       </span>
                       <p className="text-gray-700 flex-1 pt-1">{instruction}</p>

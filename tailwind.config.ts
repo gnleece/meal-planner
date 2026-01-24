@@ -25,6 +25,16 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        aubergine: {
+          50: '#FCF9FA',   // background
+          100: '#F6E9EF', // light accent (badges, active bg)
+          200: '#E8D4DE', // hover states
+          400: '#B8849A', // accent
+          600: '#7A5068', // badge text
+          700: '#4D2D42', // buttons
+          800: '#3D2236', // button hover
+          900: '#362032', // primary text
+        },
       },
     },
   },

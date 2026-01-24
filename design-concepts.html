@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meal Planner - Design Concepts</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #1a1a1a;
+      color: #fff;
+      line-height: 1.5;
+    }
+
+    .page-header {
+      text-align: center;
+      padding: 60px 20px 40px;
+    }
+
+    .page-header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+
+    .page-header p {
+      color: #888;
+      font-size: 1.1rem;
+    }
+
+    .concept-section {
+      max-width: 1200px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .concept-label {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .concept-title {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+    }
+
+    .concept-description {
+      color: #999;
+      margin-bottom: 30px;
+      max-width: 600px;
+    }
+
+    /* ==================== */
+    /* CONCEPT 1: WARM & ORGANIC */
+    /* ==================== */
+
+    .warm .concept-label {
+      background: #E07A5F;
+      color: white;
+    }
+
+    .warm-demo {
+      background: #F4F1DE;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .warm-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: #fff;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .warm-nav .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #3D405B;
+    }
+
+    .warm-nav .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .warm-nav .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 500;
+      color: #3D405B;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .warm-nav .nav-link:hover {
+      background: #F4F1DE;
+    }
+
+    .warm-nav .nav-link.active {
+      background: #E07A5F;
+      color: white;
+    }
+
+    .warm-nav .add-btn {
+      padding: 10px 20px;
+      background: #3D405B;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .warm-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .warm-card {
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .warm-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+    }
+
+    .warm-card:hover .card-image img {
+      transform: scale(1.05);
+    }
+
+    .warm-card .card-image {
+      aspect-ratio: 16/10;
+      overflow: hidden;
+    }
+
+    .warm-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .warm-card .card-content {
+      padding: 20px;
+    }
+
+    .warm-card .card-category {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #F8E5D5;
+      color: #C25E45;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'Source Sans 3', sans-serif;
+      margin-bottom: 10px;
+    }
+
+    .warm-card .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #3D405B;
+      line-height: 1.3;
+    }
+
+    .warm-card.selected {
+      outline: 3px solid #E07A5F;
+      outline-offset: -3px;
+    }
+
+    .warm-card.selected::before {
+      content: "✓";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 28px;
+      height: 28px;
+      background: #E07A5F;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .warm-card {
+      position: relative;
+    }
+
+    /* Color palette display */
+    .palette {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .palette-swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      font-size: 0.6rem;
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    /* ==================== */
+    /* CONCEPT 2: BOLD & CONTEMPORARY */
+    /* ==================== */
+
+    .bold .concept-label {
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      color: white;
+    }
+
+    .bold-demo {
+      background: #121212;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .bold-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .bold-nav .logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .bold-nav .nav-links {
+      display: flex;
+      gap: 4px;
+    }
+
+    .bold-nav .nav-link {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: #888;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .bold-nav .nav-link:hover {
+      color: #fff;
+    }
+
+    .bold-nav .nav-link.active {
+      color: #fff;
+      position: relative;
+    }
+
+    .bold-nav .nav-link.active::after {
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      left: 16px;
+      right: 16px;
+      height: 2px;
+      background: linear-gradient(90deg, #8B5CF6, #EC4899);
+      border-radius: 1px;
+    }
+
+    .bold-nav .add-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bold-nav .add-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    }
+
+    .bold-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .bold-card {
+      background: #1E1E1E;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .bold-card:hover {
+      transform: translateY(-2px) scale(1.01);
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
+    }
+
+    .bold-card .card-image {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+    }
+
+    .bold-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bold-card .card-content {
+      padding: 16px;
+    }
+
+    .bold-card .card-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: 'Inter', sans-serif;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .bold-card .card-category::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #8B5CF6;
+    }
+
+    .bold-card .card-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.3;
+    }
+
+    .bold-card.selected {
+      border: 2px solid transparent;
+      background: linear-gradient(#1E1E1E, #1E1E1E) padding-box,
+                  linear-gradient(135deg, #8B5CF6, #EC4899) border-box;
+    }
+
+    .bold-card.selected::before {
+      content: "✓";
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #8B5CF6, #EC4899);
+      color: white;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* ==================== */
+    /* CONCEPT 3: SOFT & MINIMAL */
+    /* ==================== */
+
+    .soft .concept-label {
+      background: #87A878;
+      color: white;
+    }
+
+    .soft-demo {
+      background: #FAFAFA;
+      border-radius: 20px;
+      padding: 30px;
+    }
+
+    .soft-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      margin-bottom: 40px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .soft-nav .logo {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #4A4A4A;
+    }
+
+    .soft-nav .nav-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .soft-nav .nav-link {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 400;
+      font-size: 0.95rem;
+      color: #999;
+      text-decoration: none;
+      transition: all 0.2s;
+      padding: 4px 0;
+    }
+
+    .soft-nav .nav-link:hover {
+      color: #4A4A4A;
+    }
+
+    .soft-nav .nav-link.active {
+      color: #87A878;
+    }
+
+    .soft-nav .add-btn {
+      padding: 10px 20px;
+      background: transparent;
+      color: #87A878;
+      border: 1.5px solid #87A878;
+      border-radius: 24px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .soft-nav .add-btn:hover {
+      background: #87A878;
+      color: white;
+    }
+
+    .soft-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .soft-card {
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .soft-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .soft-card .card-image {
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      border-radius: 8px;
+      margin-bottom: 14px;
+    }
+
+    .soft-card .card-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s;
+    }
+
+    .soft-card:hover .card-image img {
+      transform: scale(1.02);
+    }
+
+    .soft-card .card-content {
+      padding: 0;
+    }
+
+    .soft-card .card-category {
+      font-size: 0.75rem;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      color: #87A878;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .soft-card .card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: #4A4A4A;
+      line-height: 1.4;
+    }
+
+    .soft-card.selected .card-image {
+      outline: 2px solid #87A878;
+      outline-offset: 2px;
+    }
+
+    .soft-card.selected::before {
+      content: "✓";
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 24px;
+      height: 24px;
+      background: #87A878;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      z-index: 1;
+    }
+
+    /* ==================== */
+    /* COMPARISON TABLE */
+    /* ==================== */
+
+    .comparison {
+      max-width: 900px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .comparison h2 {
+      font-size: 1.5rem;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .comparison table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .comparison th,
+    .comparison td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+
+    .comparison th {
+      color: #888;
+      font-weight: 500;
+    }
+
+    .comparison td:first-child {
+      color: #888;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .warm-grid,
+      .bold-grid,
+      .soft-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .warm-grid,
+      .bold-grid,
+      .soft-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .warm-nav,
+      .bold-nav,
+      .soft-nav {
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-header">
+    <h1>Meal Planner Design Concepts</h1>
+    <p>Three visual directions for modernizing the app</p>
+  </div>
+
+  <!-- CONCEPT 1: WARM & ORGANIC -->
+  <section class="concept-section warm">
+    <span class="concept-label">Concept 1</span>
+    <h2 class="concept-title">Warm & Organic</h2>
+    <p class="concept-description">Inviting and kitchen-inspired with serif typography, warm terracotta accents, and a cream color palette. Feels like browsing a curated cookbook.</p>
+
+    <div class="warm-demo">
+      <nav class="warm-nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="warm-grid">
+        <div class="warm-card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="warm-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="warm-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #E07A5F;">Primary</div>
+        <div class="palette-swatch" style="background: #3D405B;">Text</div>
+        <div class="palette-swatch" style="background: #F4F1DE; color: #3D405B; text-shadow: none;">Background</div>
+        <div class="palette-swatch" style="background: #81B29A;">Accent</div>
+        <div class="palette-swatch" style="background: #F2CC8F;">Highlight</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT 2: BOLD & CONTEMPORARY -->
+  <section class="concept-section bold">
+    <span class="concept-label">Concept 2</span>
+    <h2 class="concept-title">Bold & Contemporary</h2>
+    <p class="concept-description">High-contrast dark theme with vibrant gradient accents and bold geometric typography. Feels like a polished productivity app.</p>
+
+    <div class="bold-demo">
+      <nav class="bold-nav">
+        <div class="logo">meal planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="bold-grid">
+        <div class="bold-card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="bold-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="bold-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: linear-gradient(135deg, #8B5CF6, #EC4899);">Gradient</div>
+        <div class="palette-swatch" style="background: #121212; border: 1px solid #333;">Background</div>
+        <div class="palette-swatch" style="background: #1E1E1E; border: 1px solid #333;">Card</div>
+        <div class="palette-swatch" style="background: #FFFFFF;">Text</div>
+        <div class="palette-swatch" style="background: #888888;">Muted</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCEPT 3: SOFT & MINIMAL -->
+  <section class="concept-section soft">
+    <span class="concept-label">Concept 3</span>
+    <h2 class="concept-title">Soft & Minimal</h2>
+    <p class="concept-description">Calm and airy with lots of whitespace, muted sage green accents, and understated typography. Feels like a mindful planning tool.</p>
+
+    <div class="soft-demo">
+      <nav class="soft-nav">
+        <div class="logo">Meal Planner</div>
+        <div class="nav-links">
+          <a href="#" class="nav-link active">Meals</a>
+          <a href="#" class="nav-link">Candidates</a>
+          <a href="#" class="nav-link">Categories</a>
+        </div>
+        <button class="add-btn">+ Add Meal</button>
+      </nav>
+
+      <div class="soft-grid">
+        <div class="soft-card selected">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop" alt="Salad">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Healthy</span>
+            <h3 class="card-title">Mediterranean Quinoa Bowl</h3>
+          </div>
+        </div>
+        <div class="soft-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop" alt="Pizza">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Italian</span>
+            <h3 class="card-title">Margherita Pizza</h3>
+          </div>
+        </div>
+        <div class="soft-card">
+          <div class="card-image">
+            <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=400&h=300&fit=crop" alt="Pancakes">
+          </div>
+          <div class="card-content">
+            <span class="card-category">Breakfast</span>
+            <h3 class="card-title">Fluffy Buttermilk Pancakes</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="palette">
+        <div class="palette-swatch" style="background: #87A878;">Primary</div>
+        <div class="palette-swatch" style="background: #4A4A4A;">Text</div>
+        <div class="palette-swatch" style="background: #FAFAFA; color: #4A4A4A; text-shadow: none; border: 1px solid #ddd;">Background</div>
+        <div class="palette-swatch" style="background: #E8E8E8; color: #4A4A4A; text-shadow: none;">Muted</div>
+        <div class="palette-swatch" style="background: #F5F5DC; color: #4A4A4A; text-shadow: none;">Warm</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="comparison">
+    <h2>Quick Comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Aspect</th>
+          <th>Warm & Organic</th>
+          <th>Bold & Contemporary</th>
+          <th>Soft & Minimal</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Primary Color</td>
+          <td>Terracotta</td>
+          <td>Purple-pink gradient</td>
+          <td>Sage green</td>
+        </tr>
+        <tr>
+          <td>Background</td>
+          <td>Cream</td>
+          <td>Dark (#121212)</td>
+          <td>Light gray</td>
+        </tr>
+        <tr>
+          <td>Typography</td>
+          <td>Serif headings</td>
+          <td>Bold geometric</td>
+          <td>Light humanist</td>
+        </tr>
+        <tr>
+          <td>Card Style</td>
+          <td>Magazine-like, warm</td>
+          <td>Glowing borders</td>
+          <td>Borderless, airy</td>
+        </tr>
+        <tr>
+          <td>Best For</td>
+          <td>Food-focused feel</td>
+          <td>Modern/techy users</td>
+          <td>Calm experience</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</body>
+</html>

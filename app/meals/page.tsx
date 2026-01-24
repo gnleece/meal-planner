@@ -183,7 +183,7 @@ export default function MealsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-aubergine-700 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading meals...</p>
         </div>
       </div>
@@ -208,23 +208,23 @@ export default function MealsPage() {
         {/* Current Candidates Section */}
         {candidateCount > 0 && (
           <div className="mb-6">
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+            <div className="bg-aubergine-50 border border-aubergine-200 rounded-md p-4">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h2 className="text-lg font-semibold text-blue-900 mb-2">
+                  <h2 className="text-lg font-semibold text-aubergine-900 mb-2">
                     Current Candidates
                   </h2>
-                  <p className="text-sm text-blue-800 mb-2">
+                  <p className="text-sm text-aubergine-700 mb-2">
                     {candidateCount} meal{candidateCount !== 1 ? 's' : ''} in candidates list
                   </p>
                   {candidateMeals.length > 0 && (
                     <div className="mt-2">
-                      <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                      <ul className="text-sm text-aubergine-600 list-disc list-inside space-y-1">
                         {candidateMeals.map((meal) => (
                           <li key={meal.id}>
                             <Link
                               href={`/meals/${meal.id}`}
-                              className="hover:text-blue-900 hover:underline"
+                              className="hover:text-aubergine-900 hover:underline"
                             >
                               {meal.name}
                             </Link>
@@ -271,13 +271,13 @@ export default function MealsPage() {
                 placeholder="Search meals or ingredients..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400"
               />
             </div>
             <select
               value={filterTime}
               onChange={(e) => setFilterTime(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400"
             >
               <option value="all">All Times</option>
               <option value="quick">Quick (≤30 min)</option>

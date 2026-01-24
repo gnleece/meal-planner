@@ -123,7 +123,7 @@ export function PaprikaImport({ onClose }: PaprikaImportProps) {
           type="file"
           accept=".paprikarecipes,.json,.xml"
           onChange={handleFileChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400"
         />
         <p className="mt-1 text-sm text-gray-500">
           Select your Paprika export file (.paprikarecipes, .json, or .xml)
@@ -135,7 +135,7 @@ export function PaprikaImport({ onClose }: PaprikaImportProps) {
           type="button"
           onClick={handleParse}
           disabled={isImporting}
-          className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+          className="w-full bg-aubergine-700 text-white px-4 py-2 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
         >
           {isImporting ? 'Parsing...' : 'Parse File'}
         </button>
@@ -157,14 +157,14 @@ export function PaprikaImport({ onClose }: PaprikaImportProps) {
               <button
                 type="button"
                 onClick={() => setSelectedMeals(new Set(importedMeals.map((_, i) => i)))}
-                className="text-sm text-indigo-600 hover:text-indigo-700"
+                className="text-sm text-aubergine-400 hover:text-aubergine-600"
               >
                 Select All
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedMeals(new Set())}
-                className="text-sm text-indigo-600 hover:text-indigo-700"
+                className="text-sm text-aubergine-400 hover:text-aubergine-600"
               >
                 Deselect All
               </button>
@@ -199,7 +199,7 @@ export function PaprikaImport({ onClose }: PaprikaImportProps) {
             type="button"
             onClick={handleImportSelected}
             disabled={isImporting || selectedMeals.size === 0}
-            className="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 disabled:opacity-50"
+            className="w-full bg-aubergine-700 text-white px-4 py-2 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
           >
             {isImporting
               ? `Importing ${selectedMeals.size} meal${selectedMeals.size !== 1 ? 's' : ''}...`
