@@ -8,17 +8,17 @@ const config: Config = {
   ],
   safelist: [
     // Category colors - background
-    'bg-gray-100', 'bg-red-100', 'bg-orange-100', 'bg-amber-100', 'bg-yellow-100',
-    'bg-lime-100', 'bg-green-100', 'bg-teal-100', 'bg-cyan-100', 'bg-sky-100',
-    'bg-blue-100', 'bg-indigo-100', 'bg-violet-100', 'bg-purple-100', 'bg-pink-100', 'bg-rose-100',
+    'bg-gray-200', 'bg-red-200', 'bg-orange-200', 'bg-amber-200', 'bg-yellow-200',
+    'bg-lime-200', 'bg-green-200', 'bg-teal-200', 'bg-cyan-200', 'bg-sky-200',
+    'bg-blue-200', 'bg-indigo-200', 'bg-violet-200', 'bg-purple-200', 'bg-pink-200', 'bg-rose-200',
     // Category colors - text
-    'text-gray-800', 'text-red-800', 'text-orange-800', 'text-amber-800', 'text-yellow-800',
-    'text-lime-800', 'text-green-800', 'text-teal-800', 'text-cyan-800', 'text-sky-800',
-    'text-blue-800', 'text-indigo-800', 'text-violet-800', 'text-purple-800', 'text-pink-800', 'text-rose-800',
+    'text-gray-800', 'text-red-900', 'text-orange-900', 'text-amber-900', 'text-yellow-900',
+    'text-lime-900', 'text-green-900', 'text-teal-900', 'text-cyan-900', 'text-sky-900',
+    'text-blue-900', 'text-indigo-900', 'text-violet-900', 'text-purple-900', 'text-pink-900', 'text-rose-900',
     // Category colors - ring
-    'ring-gray-400', 'ring-red-400', 'ring-orange-400', 'ring-amber-400', 'ring-yellow-400',
-    'ring-lime-400', 'ring-green-400', 'ring-teal-400', 'ring-cyan-400', 'ring-sky-400',
-    'ring-blue-400', 'ring-indigo-400', 'ring-violet-400', 'ring-purple-400', 'ring-pink-400', 'ring-rose-400',
+    'ring-gray-500', 'ring-red-500', 'ring-orange-500', 'ring-amber-500', 'ring-yellow-500',
+    'ring-lime-500', 'ring-green-500', 'ring-teal-500', 'ring-cyan-500', 'ring-sky-500',
+    'ring-blue-500', 'ring-indigo-500', 'ring-violet-500', 'ring-purple-500', 'ring-pink-500', 'ring-rose-500',
   ],
   theme: {
     extend: {
