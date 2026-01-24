@@ -290,11 +290,6 @@ export default function CandidatesPage() {
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {candidateMeals.length} Candidate{candidateMeals.length !== 1 ? 's' : ''}
-              </h2>
-            </div>
             <div className="space-y-8">
               {groupedCandidates.map(([categoryName, meals]) => {
                 const category = categories.find(c => c.name === categoryName);
@@ -304,13 +299,10 @@ export default function CandidatesPage() {
 
                 return (
                   <div key={categoryName}>
-                    <div className="flex items-center gap-2 mb-4">
-                      <h3 className={`px-3 py-1 rounded-md text-sm font-semibold ${colorClasses.bg} ${colorClasses.text}`}>
+                    <div className="mb-4">
+                      <h3 className={`inline-block px-4 py-2 rounded-md text-lg font-semibold ${colorClasses.bg} ${colorClasses.text}`}>
                         {categoryName}
                       </h3>
-                      <span className="text-sm text-gray-500">
-                        ({meals.length} meal{meals.length !== 1 ? 's' : ''})
-                      </span>
                     </div>
                     <MealGrid
                       meals={meals}
