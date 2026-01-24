@@ -143,11 +143,7 @@ export async function POST(request: NextRequest) {
       ingredients: (recipe.ingredients || []).map((ing: string) => ({
         name: ing,
       })),
-      instructions: Array.isArray(recipe.instructions)
-        ? recipe.instructions
-        : typeof recipe.instructions === 'string'
-        ? recipe.instructions.split('\n').filter((s: string) => s.trim())
-        : [],
+      instructions: recipe.instructions || [],
       source: {
         type: 'url' as const,
         url: url,
