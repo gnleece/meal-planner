@@ -120,22 +120,9 @@ export default function CandidatesPage() {
     },
   });
 
-  // Toggle meal assignment to selected week mutation
+  // Toggle meal assignment to selected week mutation with optimistic update
   const toggleWeekAssignmentMutation = useMutation({
-    mutationFn: async ({ mealId, isAssigned }: { mealId: string; isAssigned: boolean }) => {
-      // Get fresh selected week data from cache to avoid stale data
-      const cachedWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
-      const existingMealIds = cachedWeek?.selectedMeals || [];
-      
-      let updatedMealIds: string[];
-      if (isAssigned) {
-        // Remove meal from week
-        updatedMealIds = existingMealIds.filter(id => id !== mealId);
-      } else {
-        // Add meal to week
-        updatedMealIds = Array.from(new Set([...existingMealIds, mealId]));
-      }
-      
+    mutationFn: async ({ mealId, isAssigned, updatedMealIds }: { mealId: string; isAssigned: boolean; updatedMealIds: string[] }) => {
       const response = await fetch(`/api/weeks/${selectedWeekId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -146,21 +133,28 @@ export default function CandidatesPage() {
       if (!response.ok) {
         throw new Error('Failed to update week assignment');
       }
-      const updatedWeek = await response.json();
-      
-      // Update the cache immediately with the response
-      queryClient.setQueryData(['weeks', selectedWeekId], updatedWeek);
-      
-      return updatedWeek;
+      return response.json();
     },
-    onSuccess: () => {
-      // Invalidate queries to ensure all components have fresh data
-      queryClient.invalidateQueries({ queryKey: ['weeks', selectedWeekId] });
-      queryClient.invalidateQueries({ queryKey: ['weeks'] });
+    onMutate: async ({ mealId, isAssigned, updatedMealIds }) => {
+      await queryClient.cancelQueries({ queryKey: ['weeks', selectedWeekId] });
+
+      const previousWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
+
+      // Optimistically update the week's selectedMeals
+      queryClient.setQueryData<Week>(['weeks', selectedWeekId], (old) =>
+        old ? { ...old, selectedMeals: updatedMealIds } : old
+      );
+
+      return { previousWeek };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousWeek) {
+        queryClient.setQueryData(['weeks', selectedWeekId], context.previousWeek);
+      }
     },
   });
 
-  // Clear all meals from selected week mutation
+  // Clear all meals from selected week mutation with optimistic update
   const clearWeekMutation = useMutation({
     mutationFn: async () => {
       const response = await fetch(`/api/weeks/${selectedWeekId}`, {
@@ -173,21 +167,27 @@ export default function CandidatesPage() {
       if (!response.ok) {
         throw new Error('Failed to clear week');
       }
-      const updatedWeek = await response.json();
-      
-      // Update the cache immediately with the response
-      queryClient.setQueryData(['weeks', selectedWeekId], updatedWeek);
-      
-      return updatedWeek;
+      return response.json();
     },
-    onSuccess: () => {
-      // Invalidate queries to ensure all components have fresh data
-      queryClient.invalidateQueries({ queryKey: ['weeks', selectedWeekId] });
-      queryClient.invalidateQueries({ queryKey: ['weeks'] });
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['weeks', selectedWeekId] });
+
+      const previousWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
+
+      queryClient.setQueryData<Week>(['weeks', selectedWeekId], (old) =>
+        old ? { ...old, selectedMeals: [] } : old
+      );
+
+      return { previousWeek };
+    },
+    onError: (_err, _variables, context) => {
+      if (context?.previousWeek) {
+        queryClient.setQueryData(['weeks', selectedWeekId], context.previousWeek);
+      }
     },
   });
 
-  // Remove from candidates mutation
+  // Remove from candidates mutation with optimistic update
   const removeCandidateMutation = useMutation({
     mutationFn: async (mealId: string) => {
       const response = await fetch(`/api/candidates?mealId=${mealId}`, {
@@ -196,27 +196,45 @@ export default function CandidatesPage() {
       if (!response.ok) {
         throw new Error('Failed to remove candidate');
       }
-      return response.json();
+      return { mealId };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['meals'] });
+    onMutate: async (mealId) => {
+      await queryClient.cancelQueries({ queryKey: ['meals'] });
+      const previousMeals = queryClient.getQueryData<Meal[]>(['meals']);
+
+      queryClient.setQueryData<Meal[]>(['meals'], (old) =>
+        old?.map((meal) =>
+          meal.id === mealId ? { ...meal, isCandidate: false } : meal
+        )
+      );
+
+      return { previousMeals };
+    },
+    onError: (_err, _mealId, context) => {
+      if (context?.previousMeals) {
+        queryClient.setQueryData(['meals'], context.previousMeals);
+      }
     },
   });
 
   const handleSelectMeal = (mealId: string, selected: boolean) => {
-    // Check if meal is currently assigned to the selected week
-    const assignedMealIds = new Set(selectedWeek?.selectedMeals || []);
-    const isCurrentlyAssigned = assignedMealIds.has(mealId);
-    
+    const existingMealIds = selectedWeek?.selectedMeals || [];
+    const isCurrentlyAssigned = existingMealIds.includes(mealId);
+
     // Toggle assignment: if selected is true, we want to assign it (if not already assigned)
     // if selected is false, we want to remove it (if currently assigned)
     const shouldBeAssigned = selected;
     const needsChange = isCurrentlyAssigned !== shouldBeAssigned;
-    
+
     if (needsChange) {
-      toggleWeekAssignmentMutation.mutate({ 
-        mealId, 
-        isAssigned: isCurrentlyAssigned 
+      const updatedMealIds = isCurrentlyAssigned
+        ? existingMealIds.filter(id => id !== mealId)
+        : Array.from(new Set([...existingMealIds, mealId]));
+
+      toggleWeekAssignmentMutation.mutate({
+        mealId,
+        isAssigned: isCurrentlyAssigned,
+        updatedMealIds,
       });
     }
   };
