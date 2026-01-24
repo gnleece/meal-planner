@@ -9,5 +9,5 @@ export default async function Home() {
     redirect('/auth/login');
   }
 
-  redirect('/weeks');
+  redirect('/meals');
 }
