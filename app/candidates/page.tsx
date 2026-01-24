@@ -2,20 +2,17 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
-import { Meal, Week, Category, getCategoryColorClasses } from '@/lib/types';
+import { Meal, Category, getCategoryColorClasses } from '@/lib/types';
 import { MealGrid } from '@/components/MealGrid';
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getWeekId, formatWeekId, getWeekDates } from '@/lib/weekUtils';
 import { Navigation } from '@/components/Navigation';
 
 export default function CandidatesPage() {
   const router = useRouter();
   const supabase = createClient();
   const queryClient = useQueryClient();
-  const currentWeekId = getWeekId();
-  const [selectedWeekId, setSelectedWeekId] = useState(currentWeekId);
 
   // Check authentication
   useEffect(() => {
@@ -90,40 +87,22 @@ export default function CandidatesPage() {
     return sortedGroups;
   }, [candidateMeals, categories]);
 
-  // Fetch or create selected week
-  const { data: selectedWeek } = useQuery<Week>({
-    queryKey: ['weeks', selectedWeekId],
+  // Fetch current selection
+  const { data: selection } = useQuery<{ selectedMeals: string[] }>({
+    queryKey: ['selection'],
     queryFn: async () => {
-      const response = await fetch(`/api/weeks/${selectedWeekId}`);
-      if (response.status === 404) {
-        // Week doesn't exist, create it
-        const { startDate, endDate } = getWeekDates(selectedWeekId);
-        const createResponse = await fetch('/api/weeks', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: selectedWeekId,
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-            selectedMeals: [],
-          }),
-        });
-        if (!createResponse.ok) {
-          throw new Error('Failed to create week');
-        }
-        return createResponse.json();
-      }
+      const response = await fetch('/api/selection');
       if (!response.ok) {
-        throw new Error('Failed to fetch week');
+        throw new Error('Failed to fetch selection');
       }
       return response.json();
     },
   });
 
-  // Toggle meal assignment to selected week mutation with optimistic update
-  const toggleWeekAssignmentMutation = useMutation({
-    mutationFn: async ({ mealId, isAssigned, updatedMealIds }: { mealId: string; isAssigned: boolean; updatedMealIds: string[] }) => {
-      const response = await fetch(`/api/weeks/${selectedWeekId}`, {
+  // Toggle meal selection mutation with optimistic update
+  const toggleSelectionMutation = useMutation({
+    mutationFn: async ({ mealId, isSelected, updatedMealIds }: { mealId: string; isSelected: boolean; updatedMealIds: string[] }) => {
+      const response = await fetch('/api/selection', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -131,33 +110,30 @@ export default function CandidatesPage() {
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to update week assignment');
+        throw new Error('Failed to update selection');
       }
       return response.json();
     },
-    onMutate: async ({ mealId, isAssigned, updatedMealIds }) => {
-      await queryClient.cancelQueries({ queryKey: ['weeks', selectedWeekId] });
+    onMutate: async ({ updatedMealIds }) => {
+      await queryClient.cancelQueries({ queryKey: ['selection'] });
 
-      const previousWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
+      const previousSelection = queryClient.getQueryData<{ selectedMeals: string[] }>(['selection']);
 
-      // Optimistically update the week's selectedMeals
-      queryClient.setQueryData<Week>(['weeks', selectedWeekId], (old) =>
-        old ? { ...old, selectedMeals: updatedMealIds } : old
-      );
+      queryClient.setQueryData<{ selectedMeals: string[] }>(['selection'], { selectedMeals: updatedMealIds });
 
-      return { previousWeek };
+      return { previousSelection };
     },
     onError: (_err, _variables, context) => {
-      if (context?.previousWeek) {
-        queryClient.setQueryData(['weeks', selectedWeekId], context.previousWeek);
+      if (context?.previousSelection) {
+        queryClient.setQueryData(['selection'], context.previousSelection);
       }
     },
   });
 
-  // Clear all meals from selected week mutation with optimistic update
-  const clearWeekMutation = useMutation({
+  // Clear all selected meals mutation with optimistic update
+  const clearSelectionMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch(`/api/weeks/${selectedWeekId}`, {
+      const response = await fetch('/api/selection', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,24 +141,22 @@ export default function CandidatesPage() {
         }),
       });
       if (!response.ok) {
-        throw new Error('Failed to clear week');
+        throw new Error('Failed to clear selection');
       }
       return response.json();
     },
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['weeks', selectedWeekId] });
+      await queryClient.cancelQueries({ queryKey: ['selection'] });
 
-      const previousWeek = queryClient.getQueryData<Week>(['weeks', selectedWeekId]);
+      const previousSelection = queryClient.getQueryData<{ selectedMeals: string[] }>(['selection']);
 
-      queryClient.setQueryData<Week>(['weeks', selectedWeekId], (old) =>
-        old ? { ...old, selectedMeals: [] } : old
-      );
+      queryClient.setQueryData<{ selectedMeals: string[] }>(['selection'], { selectedMeals: [] });
 
-      return { previousWeek };
+      return { previousSelection };
     },
     onError: (_err, _variables, context) => {
-      if (context?.previousWeek) {
-        queryClient.setQueryData(['weeks', selectedWeekId], context.previousWeek);
+      if (context?.previousSelection) {
+        queryClient.setQueryData(['selection'], context.previousSelection);
       }
     },
   });
@@ -218,22 +192,20 @@ export default function CandidatesPage() {
   });
 
   const handleSelectMeal = (mealId: string, selected: boolean) => {
-    const existingMealIds = selectedWeek?.selectedMeals || [];
-    const isCurrentlyAssigned = existingMealIds.includes(mealId);
+    const existingMealIds = selection?.selectedMeals || [];
+    const isCurrentlySelected = existingMealIds.includes(mealId);
 
-    // Toggle assignment: if selected is true, we want to assign it (if not already assigned)
-    // if selected is false, we want to remove it (if currently assigned)
-    const shouldBeAssigned = selected;
-    const needsChange = isCurrentlyAssigned !== shouldBeAssigned;
+    const shouldBeSelected = selected;
+    const needsChange = isCurrentlySelected !== shouldBeSelected;
 
     if (needsChange) {
-      const updatedMealIds = isCurrentlyAssigned
+      const updatedMealIds = isCurrentlySelected
         ? existingMealIds.filter(id => id !== mealId)
         : Array.from(new Set([...existingMealIds, mealId]));
 
-      toggleWeekAssignmentMutation.mutate({
+      toggleSelectionMutation.mutate({
         mealId,
-        isAssigned: isCurrentlyAssigned,
+        isSelected: isCurrentlySelected,
         updatedMealIds,
       });
     }
@@ -256,87 +228,46 @@ export default function CandidatesPage() {
     );
   }
 
+  const selectedMealIds = selection?.selectedMeals || [];
+  const selectedMeals = allMeals.filter(meal => selectedMealIds.includes(meal.id));
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Week Selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Select Week
-          </label>
-          <div className="flex gap-2 flex-wrap">
-            {(() => {
-              const weeksToShow = [];
-              const today = new Date();
-              for (let i = 0; i < 4; i++) {
-                const date = new Date(today);
-                date.setDate(date.getDate() + i * 7);
-                weeksToShow.push(getWeekId(date));
-              }
-              return weeksToShow.map((weekId) => {
-                const isCurrent = weekId === currentWeekId;
-                return (
-                  <button
-                    key={weekId}
-                    onClick={() => setSelectedWeekId(weekId)}
-                    className={`px-4 py-2 rounded-md border transition-colors ${
-                      selectedWeekId === weekId
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                        : 'border-gray-300 hover:border-gray-400'
-                    } ${isCurrent ? 'font-semibold' : ''}`}
-                  >
-                    {formatWeekId(weekId)}
-                    {isCurrent && ' (Current)'}
-                  </button>
-                );
-              });
-            })()}
-          </div>
-        </div>
-
-        {/* Info */}
+        {/* Currently Selected */}
         <div className="mb-6 space-y-4">
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h2 className="text-lg font-semibold text-blue-900 mb-2">
-                  {formatWeekId(selectedWeekId)}
+                  Currently Selected
                 </h2>
-                {(() => {
-                  const assignedMealIds = selectedWeek?.selectedMeals || [];
-                  const assignedMeals = allMeals.filter(meal => assignedMealIds.includes(meal.id));
-                  
-                  return (
-                    <div>
-                      <p className="text-sm text-blue-800 mb-2">
-                        {assignedMeals.length} meal{assignedMeals.length !== 1 ? 's' : ''} assigned to this week
-                      </p>
-                      {assignedMeals.length > 0 && (
-                        <div className="mt-2">
-                          <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
-                            {assignedMeals.map((meal) => (
-                              <li key={meal.id}>{meal.name}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
+                <p className="text-sm text-blue-800 mb-2">
+                  {selectedMeals.length} meal{selectedMeals.length !== 1 ? 's' : ''} selected
+                </p>
+                {selectedMeals.length > 0 && (
+                  <div className="mt-2">
+                    <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
+                      {selectedMeals.map((meal) => (
+                        <li key={meal.id}>{meal.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
-              {selectedWeek && selectedWeek.selectedMeals.length > 0 && (
+              {selectedMeals.length > 0 && (
                 <button
                   onClick={() => {
-                    if (confirm('Clear all meals from this week?')) {
-                      clearWeekMutation.mutate();
+                    if (confirm('Clear all selected meals?')) {
+                      clearSelectionMutation.mutate();
                     }
                   }}
-                  disabled={clearWeekMutation.isPending}
+                  disabled={clearSelectionMutation.isPending}
                   className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors disabled:opacity-50 text-sm whitespace-nowrap"
                 >
-                  {clearWeekMutation.isPending ? 'Clearing...' : 'Clear All'}
+                  {clearSelectionMutation.isPending ? 'Clearing...' : 'Clear All'}
                 </button>
               )}
             </div>
@@ -383,7 +314,7 @@ export default function CandidatesPage() {
                     </div>
                     <MealGrid
                       meals={meals}
-                      selectedMealIds={new Set(selectedWeek?.selectedMeals || [])}
+                      selectedMealIds={new Set(selectedMealIds)}
                       onSelectMeal={handleSelectMeal}
                       categories={categories}
                       hideCandidateBadge

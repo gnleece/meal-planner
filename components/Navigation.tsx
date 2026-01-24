@@ -61,16 +61,6 @@ export function Navigation() {
                 Candidates
               </Link>
               <Link
-                href="/weeks"
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive('/weeks')
-                    ? 'bg-indigo-100 text-indigo-700'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
-              >
-                Week Planning
-              </Link>
-              <Link
                 href="/categories"
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   isActive('/categories')
