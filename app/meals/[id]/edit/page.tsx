@@ -67,7 +67,8 @@ export default function EditMealPage() {
   useEffect(() => {
     if (meal) {
       setName(meal.name || '');
-      setPhotoUrl(meal.photoUrl || '');
+      // Store the storage path for saving, not the signed URL
+      setPhotoUrl(meal.photoStoragePath || '');
       if (meal.photoUrl) {
         setImagePreview(meal.photoUrl);
       }

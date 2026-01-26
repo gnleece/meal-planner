@@ -9,6 +9,7 @@ export interface Meal {
   id: string;
   name: string;
   photoUrl: string;
+  photoStoragePath?: string; // Raw storage path for preserving on updates
   estimatedCookingTime: number; // in minutes
   ingredients: Ingredient[];
   instructions: string[];
