@@ -44,6 +44,7 @@ export async function GET(
       name: data.name,
       photoUrl,
       photoStoragePath: data.photo_url || undefined,
+      recipeLink: data.recipe_link || undefined,
       estimatedCookingTime: data.estimated_cooking_time,
       ingredients: data.ingredients || [],
       instructions: data.instructions || [],
@@ -83,6 +84,7 @@ export async function PUT(
     const updateData: any = {};
     if (body.name !== undefined) updateData.name = body.name;
     if (body.photoUrl !== undefined) updateData.photo_url = body.photoUrl;
+    if (body.recipeLink !== undefined) updateData.recipe_link = body.recipeLink || null;
     if (body.estimatedCookingTime !== undefined) updateData.estimated_cooking_time = body.estimatedCookingTime;
     if (body.ingredients !== undefined) updateData.ingredients = body.ingredients;
     if (body.instructions !== undefined) updateData.instructions = body.instructions;
@@ -112,6 +114,7 @@ export async function PUT(
       name: data.name,
       photoUrl,
       photoStoragePath: data.photo_url || undefined,
+      recipeLink: data.recipe_link || undefined,
       estimatedCookingTime: data.estimated_cooking_time,
       ingredients: data.ingredients || [],
       instructions: data.instructions || [],

@@ -28,6 +28,8 @@ export default function AddMealPage() {
   const [instructions, setInstructions] = useState<string[]>(['']);
   const [category, setCategory] = useState('');
 
+  const [recipeLink, setRecipeLink] = useState('');
+
   // Image upload state
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -223,6 +225,7 @@ export default function AddMealPage() {
     const mealData = {
       name: name.trim(),
       photoUrl: photoUrl.trim() || undefined,
+      recipeLink: recipeLink.trim() || undefined,
       estimatedCookingTime: estimatedCookingTime || 0,
       ingredients: ingredients.filter((ing) => ing.name.trim()),
       instructions: instructions.filter((inst) => inst.trim()),
@@ -415,6 +418,19 @@ export default function AddMealPage() {
                 {uploadError && (
                   <p className="mt-2 text-sm text-red-600">{uploadError}</p>
                 )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Recipe Link
+                </label>
+                <input
+                  type="url"
+                  value={recipeLink}
+                  onChange={(e) => setRecipeLink(e.target.value)}
+                  placeholder="https://example.com/recipe"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-aubergine-400 text-gray-900"
+                />
               </div>
 
               {/* Collapsible Details Section */}

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS meals (
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   photo_url TEXT,
+  recipe_link TEXT,
   estimated_cooking_time INTEGER NOT NULL DEFAULT 0,
   ingredients JSONB NOT NULL DEFAULT '[]'::jsonb,
   instructions JSONB NOT NULL DEFAULT '[]'::jsonb,
@@ -17,6 +18,9 @@ CREATE TABLE IF NOT EXISTS meals (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Add recipe_link column to existing meals table (for existing databases)
+ALTER TABLE meals ADD COLUMN IF NOT EXISTS recipe_link TEXT;
 
 -- Create weeks table
 CREATE TABLE IF NOT EXISTS weeks (
