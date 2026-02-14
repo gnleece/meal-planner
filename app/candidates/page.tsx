@@ -310,6 +310,7 @@ export default function CandidatesPage() {
                       onSelectMeal={handleSelectMeal}
                       categories={categories}
                       hideCandidateBadge
+                      hideEditButton
                     />
                   </div>
                 );

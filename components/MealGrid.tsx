@@ -9,9 +9,10 @@ interface MealGridProps {
   onSelectMeal?: (mealId: string, selected: boolean) => void;
   categories?: Category[];
   hideCandidateBadge?: boolean;
+  hideEditButton?: boolean;
 }
 
-export function MealGrid({ meals, selectedMealIds, onSelectMeal, categories = [], hideCandidateBadge = false }: MealGridProps) {
+export function MealGrid({ meals, selectedMealIds, onSelectMeal, categories = [], hideCandidateBadge = false, hideEditButton = false }: MealGridProps) {
   if (meals.length === 0) {
     return (
       <div className="text-center py-12">
@@ -30,6 +31,7 @@ export function MealGrid({ meals, selectedMealIds, onSelectMeal, categories = []
           onSelect={onSelectMeal}
           categories={categories}
           hideCandidateBadge={hideCandidateBadge}
+          hideEditButton={hideEditButton}
         />
       ))}
     </div>
