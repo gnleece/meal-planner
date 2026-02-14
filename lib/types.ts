@@ -10,6 +10,8 @@ export interface Meal {
   name: string;
   photoUrl: string;
   photoStoragePath?: string; // Raw storage path for preserving on updates
+  cookbookPhotoUrl?: string;
+  cookbookPhotoStoragePath?: string;
   recipeLink?: string; // URL to the original recipe
   estimatedCookingTime: number; // in minutes
   ingredients: Ingredient[];

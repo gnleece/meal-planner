@@ -232,6 +232,18 @@ export default function MealDetailPage() {
                   View Recipe
                 </a>
               )}
+              {meal.cookbookPhotoUrl && (
+                <div className="mt-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Cookbook Photo</h3>
+                  <Image
+                    src={meal.cookbookPhotoUrl}
+                    alt={`${meal.name} cookbook photo`}
+                    width={600}
+                    height={800}
+                    className="rounded-md border border-gray-300 max-w-full h-auto"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Ingredients */}

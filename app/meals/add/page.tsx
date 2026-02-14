@@ -35,6 +35,12 @@ export default function AddMealPage() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
+  // Cookbook photo state
+  const [cookbookPhotoUrl, setCookbookPhotoUrl] = useState('');
+  const [cookbookPhotoPreview, setCookbookPhotoPreview] = useState<string | null>(null);
+  const [isUploadingCookbookPhoto, setIsUploadingCookbookPhoto] = useState(false);
+  const [cookbookPhotoError, setCookbookPhotoError] = useState<string | null>(null);
+
   // Import state
   const [url, setUrl] = useState('');
   const [isImporting, setIsImporting] = useState(false);
@@ -212,6 +218,63 @@ export default function AddMealPage() {
     setUploadError(null);
   };
 
+  const handleCookbookPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setCookbookPhotoError('Please select an image file');
+      return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setCookbookPhotoError('Image size must be less than 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCookbookPhotoPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    setIsUploadingCookbookPhoto(true);
+    setCookbookPhotoError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload/image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to upload image');
+      }
+
+      const { url, signedUrl } = await response.json();
+      setCookbookPhotoUrl(url);
+      if (signedUrl) {
+        setCookbookPhotoPreview(signedUrl);
+      }
+    } catch (error: any) {
+      setCookbookPhotoError(error.message);
+      setCookbookPhotoPreview(null);
+    } finally {
+      setIsUploadingCookbookPhoto(false);
+    }
+  };
+
+  const handleRemoveCookbookPhoto = () => {
+    setCookbookPhotoUrl('');
+    setCookbookPhotoPreview(null);
+    setCookbookPhotoError(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -225,6 +288,7 @@ export default function AddMealPage() {
     const mealData = {
       name: name.trim(),
       photoUrl: photoUrl.trim() || undefined,
+      cookbookPhotoUrl: cookbookPhotoUrl.trim() || undefined,
       recipeLink: recipeLink.trim() || undefined,
       estimatedCookingTime: estimatedCookingTime || 0,
       ingredients: ingredients.filter((ing) => ing.name.trim()),
@@ -433,6 +497,78 @@ export default function AddMealPage() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Cookbook Photo
+                </label>
+
+                {cookbookPhotoPreview || cookbookPhotoUrl ? (
+                  <div className="mb-4">
+                    <div className="relative inline-block">
+                      <img
+                        src={cookbookPhotoPreview || cookbookPhotoUrl}
+                        alt="Cookbook photo preview"
+                        className="max-w-full h-48 object-cover rounded-md border border-gray-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleRemoveCookbookPhoto}
+                        className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700"
+                        aria-label="Remove cookbook photo"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4">
+                    <label
+                      htmlFor="cookbook-photo-upload"
+                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                        isUploadingCookbookPhoto
+                          ? 'border-gray-300 bg-gray-50'
+                          : 'border-gray-300 hover:border-aubergine-400 hover:bg-aubergine-100'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        {isUploadingCookbookPhoto ? (
+                          <>
+                            <svg className="w-8 h-8 mb-2 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            <p className="mb-2 text-sm text-gray-500">Uploading...</p>
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p className="mb-2 text-sm text-gray-500">
+                              <span className="font-semibold">Click to upload</span> or drag and drop
+                            </p>
+                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
+                          </>
+                        )}
+                      </div>
+                      <input
+                        id="cookbook-photo-upload"
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleCookbookPhotoUpload}
+                        disabled={isUploadingCookbookPhoto}
+                      />
+                    </label>
+                  </div>
+                )}
+
+                {cookbookPhotoError && (
+                  <p className="mt-2 text-sm text-red-600">{cookbookPhotoError}</p>
+                )}
+              </div>
+
               {/* Collapsible Details Section */}
               <div className="border border-gray-200 rounded-md">
                 <button
@@ -551,10 +687,10 @@ export default function AddMealPage() {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isUploadingImage || isUploadingCookbookPhoto}
                   className="flex-1 bg-aubergine-700 text-white px-6 py-3 rounded-md hover:bg-aubergine-800 disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Saving...' : 'Save Meal'}
+                  {isUploadingImage || isUploadingCookbookPhoto ? 'Uploading image...' : isSubmitting ? 'Saving...' : 'Save Meal'}
                 </button>
                 <Link
                   href="/meals"

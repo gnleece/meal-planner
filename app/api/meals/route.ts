@@ -36,10 +36,12 @@ export async function GET(request: NextRequest) {
     const meals: Meal[] = await Promise.all(
       data.map(async (row: any) => {
         const photoUrl = row.photo_url ? await getImageUrl(row.photo_url) : '';
+        const cookbookPhotoUrl = row.cookbook_photo_url ? await getImageUrl(row.cookbook_photo_url) : undefined;
         return {
           id: row.id,
           name: row.name,
           photoUrl,
+          cookbookPhotoUrl,
           recipeLink: row.recipe_link || undefined,
           estimatedCookingTime: row.estimated_cooking_time,
           ingredients: row.ingredients || [],
@@ -82,6 +84,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id,
         name: body.name,
         photo_url: body.photoUrl,
+        cookbook_photo_url: body.cookbookPhotoUrl || null,
         recipe_link: body.recipeLink || null,
         estimated_cooking_time: body.estimatedCookingTime,
         ingredients: body.ingredients,
@@ -98,11 +101,13 @@ export async function POST(request: NextRequest) {
     }
 
     const photoUrl = data.photo_url ? await getImageUrl(data.photo_url) : '';
+    const cookbookPhotoUrl = data.cookbook_photo_url ? await getImageUrl(data.cookbook_photo_url) : undefined;
 
     const meal: Meal = {
       id: data.id,
       name: data.name,
       photoUrl,
+      cookbookPhotoUrl,
       recipeLink: data.recipe_link || undefined,
       estimatedCookingTime: data.estimated_cooking_time,
       ingredients: data.ingredients || [],
