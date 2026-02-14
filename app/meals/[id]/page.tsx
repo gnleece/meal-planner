@@ -283,7 +283,7 @@ export default function MealDetailPage() {
               </div>
             )}
 
-            {meal.ingredients.length === 0 && meal.instructions.length === 0 && (
+            {meal.ingredients.length === 0 && meal.instructions.length === 0 && !meal.cookbookPhotoUrl && !meal.recipeLink && !meal.source.url && (
               <p className="text-gray-500">No ingredients or instructions available for this meal.</p>
             )}
           </div>

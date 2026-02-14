@@ -34,22 +34,22 @@ export function MealCard({ meal, isSelected = false, onSelect, categories = [], 
           <Link
             href={`/meals/${meal.id}/edit`}
             onClick={handleInfoClick}
-            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-1.5 shadow-sm transition-colors"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-2.5 shadow-sm transition-colors"
             aria-label="Edit meal"
             title="Edit"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
           </Link>
           <Link
             href={`/meals/${meal.id}`}
             onClick={handleInfoClick}
-            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-1.5 shadow-sm transition-colors"
+            className="bg-white/90 hover:bg-white text-gray-700 hover:text-aubergine-400 rounded-full p-2.5 shadow-sm transition-colors"
             aria-label="View meal details"
             title="View details"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </Link>
